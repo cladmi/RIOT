@@ -1,4 +1,4 @@
-MODULE = cpu_common
+MODULE = nrf5x_common_cpu
 DIRS = periph
 
 # build one of the radio drivers, if enabled

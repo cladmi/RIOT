@@ -21,6 +21,3 @@ else
   ROM_OFFSET ?= 0x2000
   include $(RIOTMAKE)/tools/bossa.inc.mk
 endif
-
-# setup the boards dependencies
-include $(RIOTBOARD)/$(BOARD)/Makefile.dep

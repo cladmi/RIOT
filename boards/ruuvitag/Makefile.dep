@@ -7,5 +7,6 @@ ifneq (,$(filter saul_default,$(USEMODULE)))
 endif
 
 ifneq (,$(filter gnrc_netdev_default,$(USEMODULE)))
+  # TODO should not this be 'netdev_default' ?
   USEMODULE += nrfmin
 endif

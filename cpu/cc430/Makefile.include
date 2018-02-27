@@ -1,5 +1,4 @@
-INCLUDES += -I$(RIOTBASE)/cpu/cc430/include/
+USEMODULE += periph
+USEMODULE += periph_common
 
 include $(RIOTCPU)/msp430_common/Makefile.include
-
-export USEMODULE += periph periph_common

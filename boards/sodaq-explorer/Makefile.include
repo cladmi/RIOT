@@ -14,6 +14,3 @@ include $(RIOTMAKE)/tools/serial.inc.mk
 # preflashed on it
 export LINKER_SCRIPT ?= $(RIOTCPU)/sam0_common/ldscripts/$(CPU_MODEL)_arduino_bootloader.ld
 include $(RIOTMAKE)/tools/bossa.inc.mk
-
-# setup the boards dependencies
-include $(RIOTBOARD)/$(BOARD)/Makefile.dep

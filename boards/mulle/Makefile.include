@@ -1,11 +1,6 @@
 # define the cpu used by the Mulle board
 export CPU = kinetis
 
-# MULLE_SERIAL is used to select which specific Mulle board we are compiling for.
-ifdef MULLE_SERIAL
-  CFLAGS += -DMULLE_SERIAL=$(MULLE_SERIAL)
-endif
-
 ### CPU part number (must have a specific linker script for each part)
 # Note that MK60DN256ZVLL10 (version 1.x) and MK60DN256VLL10 (version 2.x, no Z)
 # only differ in some register locations etc, not in the actual memory layout,
@@ -58,11 +53,7 @@ export OPENOCD_PRE_VERIFY_CMDS += \
   -c 'resume 0x20000000'
 export PRE_FLASH_CHECK_SCRIPT = $(RIOTCPU)/$(CPU)/dist/check-fcfield-elf.sh
 
-.PHONY: flash
-flash: $(RIOTCPU)/$(CPU)/dist/wdog-disable.bin
-
-# Reset the default goal.
-.DEFAULT_GOAL :=
+FLASHDEPS += $(RIOTCPU)/$(CPU)/dist/wdog-disable.bin
 
 # this board uses openocd
 include $(RIOTMAKE)/tools/openocd.inc.mk

@@ -20,10 +20,10 @@
 #
 # flash:        flash a given hex file to the target.
 #               hexfile is expected in ihex format and is pointed to
-#               by BINFILE environment variable
+#               by HEXFILE environment variable
 #
 #               options:
-#               BINFILE: path to the binary file that is flashed
+#               HEXFILE: path to the binary file that is flashed
 #
 # debug:        starts JLink as GDB server in the background and
 #               connects to the server with the GDB client specified by

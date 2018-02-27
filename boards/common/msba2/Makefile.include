@@ -19,6 +19,7 @@ export LINKFLAGS += $(CFLAGS_CPU) $(CFLAGS_DBG) $(CFLAGS_OPT) -static -lgcc -nos
 export LINKFLAGS += -Wl,--gc-sections
 
 # use the nano-specs of Newlib when available
+# TODO check this... why is it different from the USE_NANO_SPECS
 USEMODULE += newlib_nano
 
 ifeq ($(PORT),)
@@ -31,6 +32,7 @@ INCLUDES += -I$(RIOTBOARD)/common/msba2/drivers/include
 
 export OFLAGS = -O ihex
 
+# TODO this should go in CPU no ?
 export UNDEF += $(BINDIR)/cpu/startup.o
 
 USEMODULE += boards_common_msba2-drivers

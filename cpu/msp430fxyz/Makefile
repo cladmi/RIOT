@@ -1,7 +1,5 @@
-MODULE =cpu
+MODULE = cpu
 
-include $(RIOTCPU)/$(CPU)/Makefile.include
-
-DIRS = $(RIOTCPU)/msp430_common periph
+DIRS = periph $(RIOTCPU)/msp430_common
 
 include $(RIOTBASE)/Makefile.base

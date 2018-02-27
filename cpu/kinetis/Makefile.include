@@ -4,9 +4,6 @@ ifeq (,$(KINETIS_SERIES))
   include $(dir $(abspath $(lastword $(MAKEFILE_LIST))))/kinetis-info.mk
 endif
 
-# Add search path for linker scripts
-LINKFLAGS += -L$(RIOTCPU)/$(CPU)/ldscripts
-
 # Use generic linker script for all Kinetis based CPUs
 LINKER_SCRIPT = kinetis.ld
 

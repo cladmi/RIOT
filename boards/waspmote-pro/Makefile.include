@@ -8,6 +8,7 @@ BAUD        ?= 9600
 include $(RIOTMAKE)/tools/serial.inc.mk
 
 # define tools used for building the project
+# TODO this should go into CPU no ? (or even reformatted differently)
 export PREFIX = avr-
 export CC = $(PREFIX)gcc
 export CXX = $(PREFIX)c++

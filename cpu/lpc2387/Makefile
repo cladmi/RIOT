@@ -1,14 +1,12 @@
-MODULE =cpu
+MODULE = cpu
 
-include $(RIOTCPU)/$(CPU)/Makefile.include
-
-DIRS = $(RIOTCPU)/arm7_common periph
+DIRS = periph $(RIOTCPU)/arm7_common
 
 ifneq (,$(filter mci,$(USEMODULE)))
-	DIRS += mci
+  DIRS += mci
 endif
 ifneq (,$(filter i2c,$(USEMODULE)))
-	DIRS += i2c
+  DIRS += i2c
 endif
 
 include $(RIOTBASE)/Makefile.base

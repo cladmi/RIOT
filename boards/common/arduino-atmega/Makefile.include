@@ -1,3 +1,4 @@
+# TODO this should not be there!
 # include optional dependencies
 include $(RIOTBOARD)/common/arduino-atmega/Makefile.dep
 

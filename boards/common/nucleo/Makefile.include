@@ -1,4 +1,5 @@
 # export this module and its includes
+# TODO verify this one... looks not normal
 USEMODULE += boards_common_nucleo
 INCLUDES  += -I$(RIOTBOARD)/common/nucleo/include
 

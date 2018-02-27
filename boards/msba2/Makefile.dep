@@ -1,1 +1,5 @@
+ifneq (,$(filter netdev_default,$(USEMODULE)))
+  USEMODULE += cc110x
+endif
+
 include $(RIOTBOARD)/common/msba2/Makefile.dep

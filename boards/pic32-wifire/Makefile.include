@@ -1,5 +1,6 @@
 export CPU = mips_pic32mz
 export CPU_MODEL=p32mz2048efg100
-export INCLUDES += -I$(RIOTBOARD)/$(BOARD)/include/
+# TODO I think this should be removed not sure APPDEPS is required here
+# Or it should be moved to CPU but…
 export APPDEPS += $(RIOTCPU)/$(CPU)/$(CPU_MODEL)/$(CPU_MODEL).S
 export USE_UHI_SYSCALLS = 1
