@@ -53,7 +53,7 @@ $(BINDIR)/$(MODULE).a: $(OBJ)
 	$(Q)$(RM) $@
 	$(Q)$(AR) $(ARFLAGS) $@ $^
 
-$(BINDIR)/$(MODULE).a $(OBJ): | $(BINDIR)/$(MODULE)/
+$(OBJ): | $(BINDIR)/$(MODULE)/
 
 $(BINDIR)/$(MODULE)/:
 	$(Q)mkdir -p $@
