@@ -8,6 +8,13 @@ MODULE ?= $(shell basename $(CURDIR))
 
 all: $(BINDIR)/$(MODULE).a
 
+# Variables used in the build and that should trigger a rebuild when changed
+BUILD_VARIABLES += PWD
+BUILD_VARIABLES += CC CXX AS CCAS AR
+BUILD_VARIABLES += CFLAGS INCLUDES LTOFLAGS
+BUILD_VARIABLES += CXXINCLUDES ASFLAGS CCASFLAGS ARFLAGS
+BUILD_VARIABLES += SRC SRC_NOLTO SRCXX ASMSRC ASSMSRC
+
 ## submodules
 ifeq (1, $(SUBMODULES))
   # don't use *.c as SRC if SRC is empty (e.g., no module selected)
@@ -44,12 +51,20 @@ OBJC        := $(OBJC_NOLTO) $(OBJC_LTO)
 OBJCXX      := $(SRCXX:%.cpp=$(BINDIR)/$(MODULE)/%.o)
 ASMOBJ      := $(ASMSRC:%.s=$(BINDIR)/$(MODULE)/%.o)
 ASSMOBJ     := $(ASSMSRC:%.S=$(BINDIR)/$(MODULE)/%.o)
+BUILDCFG    := $(BINDIR)/$(MODULE).buildconfig
 
 OBJ := $(OBJC) $(OBJCXX) $(ASMOBJ) $(ASSMOBJ)
 DEP := $(OBJC:.o=.d) $(OBJCXX:.o=.d) $(ASSMOBJ:.o=.d)
 
-# Rebuild on Makefile change
-$(BINDIR)/$(MODULE).a $(OBJ): $(RIOTBASE)/Makefile.base
+# Rebuild on Makefile or configuration change
+$(BINDIR)/$(MODULE).a $(OBJ): $(RIOTBASE)/Makefile.base $(BUILDCFG)
+
+.PHONY: FORCE
+$(BUILDCFG): SHELL=bash
+$(BUILDCFG): FORCE
+	$(Q)for var in $(BUILD_VARIABLES); do \
+		echo $${var}=$${!var}; \
+	done | '$(RIOTTOOLS)/lazysponge/lazysponge.py' $@
 
 $(BINDIR)/$(MODULE).a: $(OBJ)
 	@# Recreate archive to cleanup deleted/non selected source files objects
