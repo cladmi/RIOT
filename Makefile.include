@@ -611,7 +611,8 @@ include $(RIOTMAKE)/modules.inc.mk
 .PHONY: $(RIOTBUILD_CONFIG_HEADER_C)
 $(RIOTBUILD_CONFIG_HEADER_C):
 	@mkdir -p '$(dir $@)'
-	$(Q)'$(RIOTTOOLS)/genconfigheader/genconfigheader.sh' '$@' $(CFLAGS_WITH_MACROS)
+	$(Q)'$(RIOTTOOLS)/genconfigheader/genconfigheader.sh' $(CFLAGS_WITH_MACROS) \
+		| '$(RIOTTOOLS)/lazysponge/lazysponge.py' $(if $(filter 1,$(QUIET)),,--verbose) '$@'
 
 CFLAGS_WITH_MACROS := $(CFLAGS)
 
