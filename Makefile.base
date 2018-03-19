@@ -60,11 +60,9 @@ DEP := $(OBJC:.o=.d) $(OBJCXX:.o=.d) $(ASSMOBJ:.o=.d)
 $(BINDIR)/$(MODULE).a $(OBJ): $(RIOTBASE)/Makefile.base $(BUILDCFG)
 
 .PHONY: FORCE
-$(BUILDCFG): SHELL=bash
 $(BUILDCFG): FORCE
-	$(Q)for var in $(BUILD_VARIABLES); do \
-		echo $${var}=$${!var}; \
-	done | '$(RIOTTOOLS)/lazysponge/lazysponge.py' $@
+	$(Q)'$(RIOTTOOLS)/printenvconfig/printenvconfig.py' $(BUILD_VARIABLES) \
+		| '$(RIOTTOOLS)/lazysponge/lazysponge.py' $@
 
 $(BINDIR)/$(MODULE).a: $(OBJ)
 	@# Recreate archive to cleanup deleted/non selected source files objects
