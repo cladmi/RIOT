@@ -48,10 +48,13 @@ ASSMOBJ     := $(ASSMSRC:%.S=$(BINDIR)/$(MODULE)/%.o)
 OBJ := $(OBJC) $(OBJCXX) $(ASMOBJ) $(ASSMOBJ)
 DEP := $(OBJC:.o=.d) $(OBJCXX:.o=.d) $(ASSMOBJ:.o=.d)
 
+# Rebuild on Makefile change
+$(BINDIR)/$(MODULE).a $(OBJ): $(RIOTBASE)/Makefile.base
+
 $(BINDIR)/$(MODULE).a: $(OBJ)
 	@# Recreate archive to cleanup deleted/non selected source files objects
 	$(Q)$(RM) $@
-	$(Q)$(AR) $(ARFLAGS) $@ $^
+	$(Q)$(AR) $(ARFLAGS) $@ $(OBJ)
 
 $(OBJ): | $(BINDIR)/$(MODULE)/
 
