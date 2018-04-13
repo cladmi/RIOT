@@ -44,7 +44,7 @@ QUIET ?= 1
 #export INCLUDES += -Iapplication_include
 
 # Specify custom dependencies for your application here ...
-# APPDEPS = app_data.h config.h
+# APPDEPS = app_data.h
 
 include $(RIOTBASE)/Makefile.include
 
