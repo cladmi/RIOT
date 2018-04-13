@@ -1,5 +1,7 @@
 export ROMABLE = 1
 
+USEMODULE += $(CPU_MODEL)
+
 include $(RIOTCPU)/mips_pic32_common/Makefile.include
 include $(RIOTMAKE)/arch/mips.inc.mk
 
