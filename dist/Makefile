@@ -44,11 +44,12 @@ QUIET ?= 1
 #export INCLUDES += -Iapplication_include
 
 # Specify custom dependencies for your application here ...
-# APPDEPS = app_data.h
+# APPDEPS = $(BINDIR)/app_data.h
+# INCLUDES += -I$(BINDIR)/
 
 include $(RIOTBASE)/Makefile.include
 
-# ... and define them here (after including Makefile.include,
-# otherwise you modify the standard target):
-#proj_data.h: script.py data.tar.gz
-#	./script.py
+# ... and define them here to use the build system variables:
+#$(BINDIR)/app_data.h: script.py data.tar.gz
+#	mkdir -p $(@D)
+#	./script.py $@
