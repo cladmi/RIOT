@@ -305,7 +305,6 @@ APPLICATION_MODULE ?= application_$(APPLICATION)
 
 # the binaries to link
 BASELIBS += $(BINDIR)/$(APPLICATION_MODULE).a
-BASELIBS += $(APPDEPS)
 
 .PHONY: all link clean flash flash-only term doc debug debug-server reset objdump help info-modules
 .PHONY: print-size elffile binfile hexfile
