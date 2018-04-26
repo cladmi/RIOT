@@ -2,7 +2,7 @@
         info-features-missing info-modules info-cpu \
         info-features-provided info-features-required \
         info-debug-variable-% info-toolchains-supported \
-        check-toolchain-supported
+        check-toolchain-supported info-board-has-enough-memory
 
 info-objsize:
 	@case "$(SORTROW)" in \
@@ -129,6 +129,9 @@ info-features-required:
 
 info-features-missing:
 	@for i in $(sort $(filter-out $(FEATURES_PROVIDED), $(FEATURES_REQUIRED))); do echo $$i; done
+
+info-board-has-enough-memory:
+	@exit $(if $(filter $(BOARD_INSUFFICIENT_MEMORY), $(BOARD)),1,0)
 
 info-debug-variable-%:
 	@echo $($*)
