@@ -82,10 +82,11 @@ USEMODULE += embunit
 ifeq (, $(filter tests-%, $(MAKECMDGOALS)))
   # the $(dir) Makefile function leaves a trailing slash after the directory
   # name, therefore we use patsubst instead.
-  UNIT_TESTS := $(patsubst %/Makefile,%,$(wildcard tests-*/Makefile))
+  UNIT_TESTS ?= $(patsubst %/Makefile,%,$(wildcard tests-*/Makefile))
 else
-  UNIT_TESTS := $(filter tests-%, $(MAKECMDGOALS))
+  UNIT_TESTS ?= $(filter tests-%, $(MAKECMDGOALS))
 endif
+UNIT_TESTS := $(UNIT_TESTS)  # Use immediate value
 
 ARM7_BOARDS := avsextrem \
                msba2 \
