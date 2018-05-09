@@ -486,6 +486,10 @@ print-size: $(ELFFILE)
 %.bin: %.elf
 	$(Q)$(OBJCOPY) $(OFLAGS) -Obinary $< $@
 
+# Lazywrite .sha1 so it only changes in sha1 changes
+%.sha1: %
+	$(Q)sha1sum $< | $(RIOTTOOLS)/lazysponge/lazysponge.py $@
+
 endif # BUILD_IN_DOCKER
 
 # Check given command is available in the path
