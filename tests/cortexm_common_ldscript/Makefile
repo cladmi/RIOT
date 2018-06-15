@@ -7,6 +7,9 @@ include ../Makefile.tests_common
 BOARD_WHITELIST += iotlab-a8-m3     # cortex-m3
 BOARD_WHITELIST += iotlab-m3        # cortex-m3
 BOARD_WHITELIST += samr21-xpro      # cortex-m0plus
+BOARD_WHITELIST += nucleo-l073rz    # cortex-m0plus
+BOARD_WHITELIST += b-l072z-lrwan1   # cortex-m0plus
+BOARD_WHITELIST += nucleo-l152re    # cortex-m0plus
 
 include $(RIOTBASE)/Makefile.include
 
