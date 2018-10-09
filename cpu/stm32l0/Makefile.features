@@ -1,8 +1,9 @@
 FEATURES_PROVIDED += periph_eeprom
 FEATURES_PROVIDED += periph_flashpage
 FEATURES_PROVIDED += periph_flashpage_raw
-FEATURES_PROVIDED += periph_hwrng
 
-BOARDS_WITHOUT_HWRNG += nucleo-l031k6
+ifeq (,$(filter nucleo-l031k6,$(BOARD)))
+  FEATURES_PROVIDED += periph_hwrng
+endif
 
 -include $(RIOTCPU)/stm32_common/Makefile.features
