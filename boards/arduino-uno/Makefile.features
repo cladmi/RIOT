@@ -1,3 +1,6 @@
 CPU = atmega328p
 
+FEATURES_PROVIDED += arduino
+FEATURES_PROVIDED += periph_pwm
+
 include $(RIOTBOARD)/common/arduino-atmega/Makefile.features

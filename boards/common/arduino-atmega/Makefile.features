@@ -6,8 +6,5 @@ FEATURES_PROVIDED += periph_spi
 FEATURES_PROVIDED += periph_timer
 FEATURES_PROVIDED += periph_uart
 
-# Various other features (if any)
-ifeq (,$(filter jiminy-mega256rfr2,$(BOARD)))
-  FEATURES_PROVIDED += arduino
-  FEATURES_PROVIDED += periph_pwm
-endif
+# Boards can define 'FEATURES_PROVIDED += arduino' if they have the right
+# definitions for include/arduino_board.h
