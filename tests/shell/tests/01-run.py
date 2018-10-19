@@ -7,7 +7,7 @@
 # directory for more details.
 
 import sys
-from testrunner import run, child
+from testrunner import run
 
 
 EXPECTED_HELP = (
