@@ -559,15 +559,26 @@ test: $(TEST_DEPS)
 		$$t || exit 1; \
 	done
 
-PYTESTFLAGS += --verbose --junit-xml=test.xml
+PYTEST = python3 -m pytest
+
+PYTESTFLAGS += --rootdir $(RIOTBASE)
+# Load 'fixtures'
+PYTESTFLAGS += -p 'testrunner.pytest'
+# Capture stdout using 'sys.stdout' and log to junit output
+PYTESTFLAGS += --capture=sys
 PYTESTFLAGS += -o junit_logging=system-out
-PYTESTFLAGS += -o junit_suit_name=board_test
-PYTESTFLAGS += --html=test.html
-PYTESTFLAGS += --junit-prefix=$(APPLICATION)
+# junit testsuit config
+PYTESTFLAGS += --junit-prefix=$(APPLICATION).$(BOARD)
+PYTESTFLAGS += -o junit_suite_name=riot_automated_test
+# junit-xml output
+PYTESTFLAGS += --junit-xml=$(BINDIR)/test_$(BOARD).xml
+# pytest-html config
+PYTESTFLAGS += --html=$(BINDIR)/test.html
 PYTESTFLAGS += --self-contained-html
 
 pytest: $(TEST_DEPS)
-	pytest $(PYTESTFLAGS) $(TESTS)
+	# TODO handle 'no tests and create an empty file maybe ?'
+	$(Q)$(PYTEST) $(PYTESTFLAGS) $(abspath $(TESTS))
 
 # Default OBJDUMPFLAGS for platforms which do not specify it:
 OBJDUMPFLAGS ?= -S -D -h
