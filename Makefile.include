@@ -559,6 +559,16 @@ test: $(TEST_DEPS)
 		$$t || exit 1; \
 	done
 
+PYTESTFLAGS += --verbose --junit-xml=test.xml
+PYTESTFLAGS += -o junit_logging=system-out
+PYTESTFLAGS += -o junit_suit_name=board_test
+PYTESTFLAGS += --html=test.html
+PYTESTFLAGS += --junit-prefix=$(APPLICATION)
+PYTESTFLAGS += --self-contained-html
+
+pytest: $(TEST_DEPS)
+	pytest $(PYTESTFLAGS) $(TESTS)
+
 # Default OBJDUMPFLAGS for platforms which do not specify it:
 OBJDUMPFLAGS ?= -S -D -h
 
