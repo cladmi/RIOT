@@ -15,6 +15,8 @@ from traceback import extract_tb, print_tb
 
 import pexpect
 
+import pytest
+
 PEXPECT_PATH = os.path.dirname(pexpect.__file__)
 RIOTBASE = os.environ['RIOTBASE'] or \
     os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
@@ -33,6 +35,25 @@ def find_exc_origin(exc_info):
                      lambda frame: frame[0].startswith(PEXPECT_PATH)
                      )[-1]
     return (pos[3], os.path.relpath(os.path.abspath(pos[0]), RIOTBASE), pos[1])
+
+
+@pytest.fixture
+def child(echo=True, timeout=60):
+    env = os.environ.copy()
+    _child = pexpect.spawnu("make term", env=env, timeout=timeout, codec_errors='replace')
+
+    # on many platforms, the termprog needs a short while to be ready...
+    time.sleep(MAKE_TERM_STARTED_DELAY)
+    if echo:
+        _child.logfile = sys.__stdout__
+
+    try:
+        subprocess.check_output(('make', 'reset'), env=env,
+                                stderr=subprocess.PIPE)
+    except subprocess.CalledProcessError:
+        # make reset yields error on some boards even if successful
+        pass
+    return _child
 
 
 def run(testfunc, timeout=10, echo=True, traceback=False):
