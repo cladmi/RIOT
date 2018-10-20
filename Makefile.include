@@ -573,7 +573,7 @@ PYTESTFLAGS += -o junit_suite_name=riot_automated_test
 # junit-xml output
 PYTESTFLAGS += --junit-xml=$(BINDIR)/test_$(BOARD).xml
 # pytest-html config
-PYTESTFLAGS += --html=$(BINDIR)/test.html
+PYTESTFLAGS += --html=$(BINDIR)/test_$(BOARD).html
 PYTESTFLAGS += --self-contained-html
 
 pytest: $(TEST_DEPS)
