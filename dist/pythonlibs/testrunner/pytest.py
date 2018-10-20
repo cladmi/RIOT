@@ -31,7 +31,7 @@ TEST_LOG_CONSOLE = bool(int(os.environ.get('TEST_LOG_CONSOLE', '1')))
 TEST_TIMEOUT_ATTR = 'TIMEOUT'
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def child(request, timeout=None):
     """Duplicate 'testrunner' child creation.
 
