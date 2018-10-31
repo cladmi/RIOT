@@ -1,7 +1,6 @@
 /**
  * Copyright (C) 2015 Kaspar Schleiser <kaspar@schleiser.de>
- *               2016 Eistec AB
- *               2018 Josua Arndt
+ * Copyright (C) 2016 Eistec AB
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -16,7 +15,6 @@
  * @brief xtimer core functionality
  * @author Kaspar Schleiser <kaspar@schleiser.de>
  * @author Joakim Nohlgård <joakim.nohlgard@eistec.se>
- * @author Josua Arndt <jarndt@ias.rwth-aachen.de>
  * @}
  */
 
@@ -180,27 +178,12 @@ int _xtimer_set_absolute(xtimer_t *timer, uint32_t target)
     uint32_t now = _xtimer_now();
     int res = 0;
 
+    DEBUG("timer_set_absolute(): now=%" PRIu32 " target=%" PRIu32 "\n", now, target);
+
     timer->next = NULL;
-
-    /* Ensure that offset is bigger than 'XTIMER_BACKOFF',
-     * 'target - now' will allways be the offset no matter if target < or > now.
-     *
-     * This expects that target was not set too close to now and overrun now, so
-     * from setting target up until the call of '_xtimer_now()' above now has not
-     * become equal or bigger than target.
-     * This is crucial when using low CPU frequencies so reaching the '_xtimer_now()'
-     * call needs multiple xtimer ticks.
-     *
-     * '_xtimer_set()' and `_xtimer_periodic_wakeup()` ensure this by already
-     * backing off for small values. */
-    uint32_t offset = (target - now);
-
-    DEBUG("timer_set_absolute(): now=%" PRIu32 " target=%" PRIu32 " offset=%" PRIu32 "\n",
-          now, target, offset);
-
-    if (offset <= XTIMER_BACKOFF) {
+    if ((target >= now) && ((target - XTIMER_BACKOFF) < now)) {
         /* backoff */
-        xtimer_spin_until(target);
+        xtimer_spin_until(target + XTIMER_BACKOFF);
         _shoot(timer);
         return 0;
     }
@@ -212,17 +195,6 @@ int _xtimer_set_absolute(xtimer_t *timer, uint32_t target)
 
     timer->target = target;
     timer->long_target = _long_cnt;
-
-    /* Ensure timer is fired in right timer period.
-     * Backoff condition above ensures that 'target - XTIMER_OVERHEAD` is later
-     * than 'now', also for values when now will overflow and the value of target
-     * is smaller then now.
-     * If `target < XTIMER_OVERHEAD` the new target will be at the end of this
-     * 32bit period, as `target - XTIMER_OVERHEAD` is a big number instead of a
-     * small at the beginning of the next period. */
-    target = target - XTIMER_OVERHEAD;
-
-    /* 32 bit target overflow, target is in next 32bit period */
     if (target < now) {
         timer->long_target++;
     }
@@ -242,7 +214,7 @@ int _xtimer_set_absolute(xtimer_t *timer, uint32_t target)
 
             if (timer_list_head == timer) {
                 DEBUG("timer_set_absolute(): timer is new list head. updating lltimer.\n");
-                _lltimer_set(target);
+                _lltimer_set(target - XTIMER_OVERHEAD);
             }
         }
     }
@@ -534,7 +506,7 @@ overflow:
         next_target = timer_list_head->target - XTIMER_OVERHEAD;
 
         /* make sure we're not setting a time in the past */
-        if (next_target < (_xtimer_now() + XTIMER_ISR_BACKOFF)) {
+        if (next_target < (_xtimer_lltimer_now() + XTIMER_ISR_BACKOFF)) {
             goto overflow;
         }
     }
