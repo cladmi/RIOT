@@ -86,7 +86,7 @@ ifeq ($(TOOLCHAIN),llvm)
   # bundled headers. Clang compatible versions of those headers are already
   # provided by Newlib, so placing this directory first will eliminate those problems.
   # The above problem was observed with LLVM 3.9.1 when building against GCC 6.3.0 headers.
-  INCLUDES := $(NEWLIB_INCLUDES) $(INCLUDES)
+  #INCLUDES := $(NEWLIB_INCLUDES) $(INCLUDES)
 endif
 
 ifeq (1,$(USE_NEWLIB_NANO))
@@ -95,5 +95,8 @@ ifeq (1,$(USE_NEWLIB_NANO))
                                                     $(NEWLIB_INCLUDE_DIR)/nano))
   # newlib-nano overrides newlib.h and its include dir should therefore go before
   # the regular system include dirs.
-  INCLUDES := -isystem $(NEWLIB_NANO_INCLUDE_DIR) $(INCLUDES)
+
+  NEWLIB_NANO_INCLUDES = $(addprefix -isystem,$(NEWLIB_NANO_INCLUDE_DIR))
 endif
+
+LIBC_INCLUDES = $(NEWLIB_NANO_INCLUDES) $(NEWLIB_INCLUDES)

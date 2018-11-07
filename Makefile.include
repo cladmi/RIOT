@@ -235,6 +235,8 @@ export TOOLCHAIN
 # will most likely not need to touch this.
 export PREFIX ?= $(if $(TARGET_ARCH),$(TARGET_ARCH)-)
 
+INCLUDES += $(LIBC_INCLUDES)
+
 # Add standard include directories
 INCLUDES += -I$(RIOTBASE)/core/include -I$(RIOTBASE)/drivers/include -I$(RIOTBASE)/sys/include
 
