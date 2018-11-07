@@ -44,8 +44,19 @@ gcc_include_dirs = $(realpath \
         sed \
         -e '1,/\#include <...> search starts here:/d' \
         -e '/End of search list./,$$d' \
-        -e 's/^ *//')\
+        -e 's/^ *//'; echo 'gcc_include_dirs $(CFLAGS_CPU) -x $1'>>/dev/stderr)\
 )
+
+# This should be set to a deffered variable
+# It will allow not evaluating the value now but will save the value after first
+# execution
+# $1 variable name
+# $2 value
+ifneq (,$(USE_MEMOIZED))
+memoized = $2 $(eval $1 := $2)
+else
+memoized = $2
+endif
 
 ifneq (,$(TARGET_ARCH))
   ifeq (,$(CFLAGS_CPU))
@@ -61,8 +72,8 @@ ifneq (,$(TARGET_ARCH))
   # Clang on Linux uses GCC's C and C++ headers and libstdc++ (installed with GCC)
 
   # Extract include directories from GCC
-  GCC_C_INCLUDE_DIRS   = $(call gcc_include_dirs,c)
-  GCC_CXX_INCLUDE_DIRS = $(call gcc_include_dirs,c++)
+  GCC_C_INCLUDE_DIRS   = $(call memoized,GCC_C_INCLUDE_DIRS,$(call gcc_include_dirs,c))
+  GCC_CXX_INCLUDE_DIRS = $(call memoized,GCC_CXX_INCLUDE_DIRS,$(call gcc_include_dirs,c++))
 
   GCC_C_INCLUDES   = $(addprefix -isystem ,$(GCC_C_INCLUDE_DIRS))
   GCC_CXX_INCLUDES = $(addprefix -isystem ,$(GCC_CXX_INCLUDE_DIRS))
