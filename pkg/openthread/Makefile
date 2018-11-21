@@ -4,16 +4,13 @@ PKG_VERSION=thread-reference-20170716
 PKG_BUILDDIR ?= $(PKGDIRBASE)/$(PKG_NAME)
 
 ifneq (,$(filter openthread-cli-ftd,$(USEMODULE)))
-  $(info Compile OpenThread for FTD device)
   OPENTHREAD_ARGS += --enable-cli-app=ftd
 endif
 ifneq (,$(filter openthread-cli-mtd,$(USEMODULE)))
-  $(info Compile OpenThread for MTD device)
   OPENTHREAD_ARGS += --enable-cli-app=mtd --enable-joiner
 endif
 OPENTHREAD_ARGS += --enable-application-coap
 CONFIG_FILE      = OPENTHREAD_PROJECT_CORE_CONFIG_FILE='\"platform_config.h\"'
-$(info $$OPENTHREAD_ARGS is [${OPENTHREAD_ARGS}])
 
 .PHONY: all
 
