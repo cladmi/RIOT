@@ -29,6 +29,7 @@ BINDIR         ?= $(BINDIRBASE)/$(BOARD)
 PKGDIRBASE     ?= $(BINDIRBASE)/pkg/$(BOARD)
 DLCACHE        ?= $(RIOTTOOLS)/dlcache/dlcache.sh
 DLCACHE_DIR    ?= $(RIOTBASE)/.dlcache
+PYTEST_OUT_DIR ?= $(BINDIR)
 
 __DIRECTORY_VARIABLES := \
   RIOTBASE \
@@ -45,6 +46,7 @@ __DIRECTORY_VARIABLES := \
   GITCACHE \
   PKGDIRBASE \
   DLCACHE_DIR \
+  PYTEST_OUT_DIR \
   #
 
 # Make all paths absolute.
@@ -62,6 +64,7 @@ override BINDIRBASE     := $(abspath $(BINDIRBASE))
 override BINDIR         := $(abspath $(BINDIR))
 override PKGDIRBASE     := $(abspath $(PKGDIRBASE))
 override DLCACHE_DIR    := $(abspath $(DLCACHE_DIR))
+override PYTEST_OUT_DIR := $(abspath $(PYTEST_OUT_DIR))
 
 # Ensure that all directories are set and don't contain spaces.
 ifneq (, $(filter-out 1, $(foreach v,$(__DIRECTORY_VARIABLES),$(words $($(v))))))
@@ -571,9 +574,9 @@ PYTESTFLAGS += -o junit_logging=system-out
 PYTESTFLAGS += --junit-prefix=$(APPLICATION).$(BOARD)
 PYTESTFLAGS += -o junit_suite_name=riot_automated_test
 # junit-xml output
-PYTESTFLAGS += --junit-xml=$(BINDIR)/test_$(BOARD).xml
+PYTESTFLAGS += --junit-xml=$(PYTEST_OUT_DIR)/test_$(BOARD).xml
 # pytest-html config
-PYTESTFLAGS += --html=$(BINDIR)/test_$(BOARD).html
+PYTESTFLAGS += --html=$(PYTEST_OUT_DIR)/test_$(BOARD).html
 PYTESTFLAGS += --self-contained-html
 
 pytest: $(TEST_DEPS)
