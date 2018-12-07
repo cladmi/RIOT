@@ -31,20 +31,6 @@ TEST_LOG_CONSOLE = bool(int(os.environ.get('TEST_LOG_CONSOLE', '1')))
 TEST_TIMEOUT_ATTR = 'TIMEOUT'
 
 
-class CustomException(Exception):
-    pass
-
-
-@pytest.fixture(autouse=True)
-def patch_timeout(monkeypatch):
-
-    def _exception(self, err=None):
-        raise CustomException(err)
-
-    monkeypatch.setattr(pexpect.expect.Expecter, 'timeout', _exception)
-    monkeypatch.setattr(pexpect.expect.Expecter, 'eof', _exception)
-
-
 class CustomSpawn(pexpect.spawn):
 
     def __str__(self):
@@ -52,12 +38,9 @@ class CustomSpawn(pexpect.spawn):
 
     def expect(self, pattern, timeout=-1, searchwindowsize=-1, async=False,
                **kw):
-        try:
-            super(CustomSpawn, self).expect(
-                pattern, timeout=timeout, searchwindowsize=searchwindowsize,
-                async=async, **kw)
-        except CustomException:
-            raise
+        super(CustomSpawn, self).expect(
+              pattern, timeout=timeout, searchwindowsize=searchwindowsize,
+              async=async, **kw)
 
 
 @pytest.fixture(scope="module")
