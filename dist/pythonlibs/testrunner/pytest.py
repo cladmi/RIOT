@@ -32,13 +32,15 @@ TEST_TIMEOUT_ATTR = 'TIMEOUT'
 
 
 class CustomSpawn(pexpect.spawn):
+    """Convenient subclass to better catch pexpect timeout and eof errors."""
 
-    def expect(self, pattern, timeout=-1, searchwindowsize=-1, async=False,
+    def expect(self, pattern, timeout=-1, searchwindowsize=-1, async_=False,
                **kw):
+        # pylint:disable=arguments-differ
         try:
             super(CustomSpawn, self).expect(pattern, timeout=timeout,
                                             searchwindowsize=searchwindowsize,
-                                            async=async, **kw)
+                                            async=async_, **kw)
         except pexpect.TIMEOUT:
             error = traceback.format_stack()[-2]
             pytest.fail("Timeout in expect script at \"{}\"".format(error),
@@ -47,8 +49,6 @@ class CustomSpawn(pexpect.spawn):
             error = traceback.format_stack()[-2]
             pytest.fail("Unexpected end of file in expect script at "
                         "\"{}\"".format(error), pytrace=False)
-        except:
-            raise
 
 
 @pytest.fixture(scope="module")
