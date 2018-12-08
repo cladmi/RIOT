@@ -20,11 +20,11 @@ import signal
 import subprocess
 import re
 import time
+import traceback
 
 import pexpect
 import pytest
 import testrunner
-
 
 DEFAULT_TIMEOUT = 10
 TEST_LOG_CONSOLE = bool(int(os.environ.get('TEST_LOG_CONSOLE', '1')))
@@ -33,14 +33,22 @@ TEST_TIMEOUT_ATTR = 'TIMEOUT'
 
 class CustomSpawn(pexpect.spawn):
 
-    def __str__(self):
-        return ""
-
     def expect(self, pattern, timeout=-1, searchwindowsize=-1, async=False,
                **kw):
-        super(CustomSpawn, self).expect(
-              pattern, timeout=timeout, searchwindowsize=searchwindowsize,
-              async=async, **kw)
+        try:
+            super(CustomSpawn, self).expect(pattern, timeout=timeout,
+                                            searchwindowsize=searchwindowsize,
+                                            async=async, **kw)
+        except pexpect.TIMEOUT:
+            error = traceback.format_stack()[-2]
+            pytest.fail("Timeout in expect script at \"{}\"".format(error),
+                        pytrace=False)
+        except pexpect.EOF:
+            error = traceback.format_stack()[-2]
+            pytest.fail("Unexpected end of file in expect script at "
+                        "\"{}\"".format(error), pytrace=False)
+        except:
+            raise
 
 
 @pytest.fixture(scope="module")
