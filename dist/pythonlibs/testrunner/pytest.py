@@ -26,29 +26,31 @@ import pexpect
 import pytest
 import testrunner
 
+
 DEFAULT_TIMEOUT = 10
 TEST_LOG_CONSOLE = bool(int(os.environ.get('TEST_LOG_CONSOLE', '1')))
 TEST_TIMEOUT_ATTR = 'TIMEOUT'
+ERROR_MSG = ("ERROR > {} in expect script!\n"
+             "ERROR > in \"{}\", line {}\n, in {}:\n"
+             "ERROR > \t \"{}\"")
 
 
 class CustomSpawn(pexpect.spawn):
     """Convenient subclass to better catch pexpect timeout and eof errors."""
 
-    def expect(self, pattern, timeout=-1, searchwindowsize=-1, async_=False,
-               **kw):
+    def expect(self, pattern, timeout=-1, searchwindowsize=-1, **kw):
         # pylint:disable=arguments-differ
         try:
-            super(CustomSpawn, self).expect(pattern, timeout=timeout,
-                                            searchwindowsize=searchwindowsize,
-                                            async=async_, **kw)
+            super().expect(pattern, timeout=timeout,
+                           searchwindowsize=searchwindowsize, **kw)
         except pexpect.TIMEOUT:
-            error = traceback.format_stack()[-2]
-            pytest.fail("Timeout in expect script at \"{}\"".format(error),
+            fname, pos, fn, line = traceback.extract_stack()[-2]
+            pytest.fail(ERROR_MSG.format("Timeout", fname, pos, fn, line),
                         pytrace=False)
         except pexpect.EOF:
-            error = traceback.format_stack()[-2]
-            pytest.fail("Unexpected end of file in expect script at "
-                        "\"{}\"".format(error), pytrace=False)
+            fname, pos, fn, line = traceback.extract_stack()[-2]
+            pytest.fail(ERROR_MSG.format("Unexpected end of file", fname, pos,
+                                         fn, line), pytrace=False)
 
 
 @pytest.fixture(scope="module")
@@ -61,7 +63,8 @@ def child(request, timeout=None):
     if timeout is None:
         timeout = _timeout(request)
 
-    _child = CustomSpawn("make term", timeout=timeout, encoding='utf-8')
+    _child = CustomSpawn("make term", timeout=timeout,
+                         encoding='utf-8', codec_errors='replace')
 
     # on many platforms, the termprog needs a short while to be ready...
     time.sleep(testrunner.MAKE_TERM_STARTED_DELAY)
