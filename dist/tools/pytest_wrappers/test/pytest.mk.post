@@ -1,0 +1,40 @@
+# Pytest integration
+PYTEST_MK_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
+
+PYTEST ?= python3 -m pytest
+
+# Report names
+PYTEST_SUITE ?= riot_tests
+PYTEST_CLASSNAME ?= $(BOARD).$(APPLICATION)
+PYTEST_TESTCLASSNAME ?= $(PYTEST_CLASSNAME).test
+
+
+# Output files for pytest 'test' command
+# board/application is also in the name to allow having a fixed PYTEST_OUT_DIR
+PYTEST_OUT_DIR ?= $(BUILD_DIR)/output/pytest_results/$(BOARD)/$(APPLICATION)
+PYTEST_TEST_XML_OUTPUT  ?= $(PYTEST_OUT_DIR)/$(PYTEST_TESTCLASSNAME).xml
+
+# JunitXML testsuite config
+PYTESTFLAGS += --junit-xml=$(PYTEST_TEST_XML_OUTPUT)
+PYTESTFLAGS += --junit-prefix=$(PYTEST_TESTCLASSNAME)
+PYTESTFLAGS += -o junit_suite_name=$(PYTEST_SUITE)
+
+# Pytest / RIOT integration:
+# - add the current directory to PYTHONPATH to find the plugin
+#   this is needed because we are outside of RIOT or not in dist/pythonlibs
+# - use 'child' fixture to communicate to the node
+# - use 'sys' capture to allow to allow output to both the report and terminal
+pytest: export PYTHONPATH:=$(PYTEST_MK_DIR):$(PYTHONPATH)
+PYTESTFLAGS += -p 'pytest_child'
+PYTESTFLAGS += --capture=sys -o junit_logging=system-out
+
+
+.PHONY: pytest
+pytest: $(TEST_DEPS)
+	@# TODO handle 'no tests and create an empty file maybe ?'
+	@# This is not a file target to force rerunning for the moment
+	$(Q)$(PYTEST) $(PYTESTFLAGS) $(abspath $(TESTS))
+
+.PHONY: pytest-no-stdout
+pytest-no-stdout: export TEST_LOG_CONSOLE=0
+pytest-no-stdout: pytest
