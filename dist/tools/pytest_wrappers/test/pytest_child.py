@@ -20,6 +20,62 @@ from testrunner.spawn import setup_child, teardown_child
 TEST_LOG_CONSOLE = bool(int(os.environ.get('TEST_LOG_CONSOLE', '1')))
 
 
+#
+# Handling of pytest auto-wrapping of the RIOT tests
+#
+
+SUPPORTED_TEST_NAMES = {'testfunc'}
+SUPPORTED_FIXTURES = {
+    'child', 'request',
+}
+
+
+def pytest_collection_modifyitems(config, items):
+    """Deselect tests that are not currently supported.
+
+    * Only the 'child' fixture is currently supported
+    * Only try to detect 'testfunc'
+    """
+    selected = items
+    deselected = []
+
+    selected, deselected = _keep_supported_fixtures(selected, deselected,
+                                                    SUPPORTED_FIXTURES)
+    selected, deselected = _keep_supported_testfuncs(selected, deselected,
+                                                     SUPPORTED_TEST_NAMES)
+
+    config.hook.pytest_deselected(items=deselected)
+    items[:] = selected
+
+
+def _keep_supported_fixtures(items, deselected, supported_fixtures):
+    """Keep functions that have supported suppported_fixtures."""
+    selected = []
+    supported_fixtures = set(supported_fixtures)
+
+    for item in items:
+        unsupported = (set(getattr(item, 'fixturenames', ())) -
+                       supported_fixtures)
+        if not unsupported:
+            selected.append(item)
+        else:
+            print('Unsupported fixtures: {}'.format(unsupported),
+                  file=sys.stderr)
+            deselected.append(item)
+    return selected, deselected
+
+
+def _keep_supported_testfuncs(items, deselected, supported_names):
+    """Keep functions that have a supported name."""
+    selected = []
+    for item in items:
+        if item.name in set(supported_names):
+            selected.append(item)
+        else:
+            deselected.append(item)
+    return selected, deselected
+
+
 class CustomSpawn(pexpect.spawn):
     """Convenient subclass to better catch pexpect timeout and eof errors.
 
