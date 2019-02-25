@@ -12,5 +12,9 @@ include $(RIOTMAKE)/tools/serial.inc.mk
 DEBUG_ADAPTER ?= stlink
 STLINK_VERSION ?= 2
 
+# call a 'reset halt' command before starting the debugger
+# it is required as `connect_assert_srst` is set
+export OPENOCD_DBG_START_CMD = -c 'reset halt'
+
 # this board uses openocd
 include $(RIOTMAKE)/tools/openocd.inc.mk
