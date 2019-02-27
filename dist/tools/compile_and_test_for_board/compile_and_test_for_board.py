@@ -299,6 +299,11 @@ class RIOTApplication():
         """Return the relative result directory for the application."""
         return self.appdir
 
+    def _is_in_riotdir(self):
+        """Return if the application is inside riotdir."""
+        return is_in_directory(os.path.join(self.riotdir, self.appdir),
+                               self.riotdir)
+
     def has_test(self):
         """Detect if the application has tests.
 
