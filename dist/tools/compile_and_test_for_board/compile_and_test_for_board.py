@@ -269,6 +269,8 @@ class RIOTApplication():
     TEST_TARGETS = ('test',)
     TEST_AVAILABLE_TARGETS = ('test/available',)
 
+    EXTERNAL_APP_RESULTDIR = 'external_applications'
+
     def __init__(self, board, riotdir, appdir, resultdir):
         # appdir must be sanitized to handle absolute path inside riotdir
         full_appdir = os.path.join(riotdir, appdir)
@@ -283,7 +285,6 @@ class RIOTApplication():
         _relative_resultdir = self._resultdir()
         self.resultdir = os.path.join(resultdir, _relative_resultdir)
 
-        # Currently not handling directories outside of RIOT
         assert is_in_directory(self.resultdir, resultdir), \
             "Application result directory is outside main result directory"
 
@@ -296,8 +297,18 @@ class RIOTApplication():
         return appname
 
     def _resultdir(self):
-        """Return the relative result directory for the application."""
-        return self.appdir
+        """Return the relative result directory for the application.
+
+        If the application is inside riot, it returns the relative appdir.
+        If the application is outside, use the application name put in a
+        common directory.
+        """
+        if self._is_in_riotdir():
+            return self.appdir
+
+        # External application
+        # Put results in a common directory with the application name
+        return os.path.join(self.EXTERNAL_APP_RESULTDIR, self.name())
 
     def _is_in_riotdir(self):
         """Return if the application is inside riotdir."""
