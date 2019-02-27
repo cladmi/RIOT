@@ -270,13 +270,17 @@ class RIOTApplication():
     TEST_AVAILABLE_TARGETS = ('test/available',)
 
     def __init__(self, board, riotdir, appdir, resultdir):
+        # appdir must be sanitized to handle absolute path inside riotdir
+        full_appdir = os.path.join(riotdir, appdir)
+        appdir = sanitize_path(full_appdir, riotdir)
+
         self.board = board
         self.riotdir = riotdir
         self.appdir = appdir
         self.resultdir = os.path.join(resultdir, appdir)
         self.logger = logging.getLogger('%s.%s' % (board, appdir))
 
-        # Currently not handling absolute directories or outside of RIOT
+        # Currently not handling directories outside of RIOT
         assert is_in_directory(self.resultdir, resultdir), \
             "Application result directory is outside main result directory"
 
