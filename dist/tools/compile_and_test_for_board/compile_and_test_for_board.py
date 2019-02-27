@@ -277,8 +277,11 @@ class RIOTApplication():
         self.board = board
         self.riotdir = riotdir
         self.appdir = appdir
-        self.resultdir = os.path.join(resultdir, appdir)
         self.logger = logging.getLogger('%s.%s' % (board, appdir))
+
+        # _resultdir uses previous attributes
+        _relative_resultdir = self._resultdir()
+        self.resultdir = os.path.join(resultdir, _relative_resultdir)
 
         # Currently not handling directories outside of RIOT
         assert is_in_directory(self.resultdir, resultdir), \
@@ -291,6 +294,10 @@ class RIOTApplication():
                             log_error=True).strip()
         self.logger.debug('APPLICATION: %s', appname)
         return appname
+
+    def _resultdir(self):
+        """Return the relative result directory for the application."""
+        return self.appdir
 
     def has_test(self):
         """Detect if the application has tests.
