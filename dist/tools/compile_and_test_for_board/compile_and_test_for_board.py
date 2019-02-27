@@ -208,6 +208,50 @@ def is_in_directory(path, directory):
     return path.startswith(directory)
 
 
+def sanitize_path(path, directory):
+    """Sanitize 'path' relative to 'directory'
+
+    Sanitizing apply in this order
+
+    * normalize `path`
+    * return the relative path if inside `directory`
+    * return the `path` if it is absolute
+    * return the relative path to `directory`
+
+    >>> sanitize_path('directory/a/b/', 'directory')
+    'a/b'
+    >>> sanitize_path('a/b', '.')
+    'a/b'
+    >>> sanitize_path('a/b/../c', '.')
+    'a/c'
+
+    # Also returns relative directory for an absolute paths
+    >>> sanitize_path(os.path.abspath('dir/relative'), 'dir')
+    'relative'
+
+    # Directories outside are just normalized:
+    >>> sanitize_path('../c', '.')
+    '../c'
+    >>> sanitize_path('../c/../d/../e', '.')
+    '../e'
+    >>> sanitize_path('directory/../a', 'directory')
+    '../a'
+
+    # It keeps the absolute path, but normalize it
+    >>> abs_path = os.path.abspath('../a')
+    >>> sanitize_path(abs_path, 'dir') == abs_path
+    True
+    >>> sanitize_path(os.path.join(abs_path, 'c/../b/..'), 'dir') == abs_path
+    True
+    """
+    path = os.path.normpath(path)
+    if is_in_directory(path, directory):
+        return os.path.relpath(path, directory)
+    if os.path.isabs(path):
+        return path
+    return os.path.relpath(path, directory)
+
+
 class RIOTApplication():
     """RIOT Application representation.
 
