@@ -28,6 +28,10 @@ endif
 # Configuration for OpenOCD v0.10.0 and newer
 export OPENOCD_CONFIG ?= $(RIOTBOARD)/common/frdm/dist/openocd-$(CPU_FAMILY).cfg
 
+# call a 'reset halt' command before starting the debugger
+# it is required as `connect_assert_srst` is set
+export OPENOCD_DBG_START_CMD = -c 'reset halt'
+
 # Check the flash configuration field before flashing
 export PRE_FLASH_CHECK_SCRIPT = $(RIOTCPU)/$(CPU)/dist/check-fcfield.sh
 
