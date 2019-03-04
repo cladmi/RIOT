@@ -20,6 +20,10 @@ export OPENOCD_PRE_VERIFY_CMDS += \
 export OPENOCD_EXTRA_INIT
 export PRE_FLASH_CHECK_SCRIPT = $(RIOTCPU)/$(CPU)/dist/check-fcfield.sh
 
+# call a 'reset halt' command before starting the debugger
+# it is required as `connect_assert_srst` is set
+export OPENOCD_DBG_START_CMD = -c 'reset halt'
+
 DEBUG_ADAPTER ?= dap
 
 # Add board selector (USB serial) to OpenOCD options if specified.
