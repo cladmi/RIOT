@@ -52,12 +52,12 @@ optional arguments:
   -h, --help            show this help message and exit
   --applications APPLICATIONS
                         List of applications to test, overwrites default
-                        configuration of testing all applications (default:
-                        None)
+                        configuration of testing all applications. Path can
+                        contain wildcards. (default: None)
   --applications-exclude APPLICATIONS_EXCLUDE
                         List of applications to exclude from tested
-                        applications. Also applied after "--applications".
-                        (default: None)
+                        applications. Path can contain wildcards. Also applied
+                        after "--applications". (default: None)
   --no-test             Disable executing tests (default: False)
   --loglevel {debug,info,warning,error,fatal,critical}
                         Python logger log level (default: info)
@@ -80,6 +80,7 @@ import os
 import sys
 import glob
 import shutil
+import itertools
 import logging
 import argparse
 import subprocess
@@ -120,6 +121,33 @@ def apps_directories(riotdir, apps_dirs=None, apps_dirs_skip=None):
     apps_dirs = set(apps_dirs) - set(apps_dirs_skip)
 
     return sorted(list(apps_dirs))
+
+
+def glob_from_dir(pathname, directory):
+    """Run 'glob' from given directory.
+
+    Returned paths will be relative to `directory` or absolute if they were.
+    """
+    curdir = os.getcwd()
+    try:
+        os.chdir(directory)
+        return glob.glob(pathname)
+    finally:
+        os.chdir(curdir)
+
+
+def expand_applications_glob(apps_glob, riotdir):
+    """Expand the list of applications using 'glob'
+
+    :param apps_glob: list of glob patterns relative to riotdir or absolute.
+                      If None, return an empty list.
+    """
+    apps_glob = apps_glob or []
+
+    apps_list_it = (glob_from_dir(app, directory=riotdir) for app in apps_glob)
+
+    # Flatten list of list
+    return list(itertools.chain.from_iterable(apps_list_it))
 
 
 def _is_git_repo(riotdir):
@@ -650,11 +678,12 @@ PARSER.add_argument('result_directory', nargs='?', default='results',
 PARSER.add_argument(
     '--applications', type=list_from_string,
     help=('List of applications to test, overwrites default configuration of'
-          ' testing all applications'),
+          ' testing all applications. Path can contain wildcards.'),
 )
 PARSER.add_argument(
     '--applications-exclude', type=list_from_string,
     help=('List of applications to exclude from tested applications.'
+          ' Path can contain wildcards.'
           ' Also applied after "--applications".'),
 )
 PARSER.add_argument('--no-test', action='store_true', default=False,
@@ -681,9 +710,25 @@ PARSER.add_argument(
     help="Parallel building (0 means not limit, like '--jobs')")
 
 
+def finalize_args(args):
+    """Finalize the argument parsing.
+
+    It handles updating values that use more than ore argument.
+
+    * Evaluate 'applications' and 'applications_exclude' wildcards
+    """
+
+    # Wildcards expansion use 'riot_directory'
+    args.applications = expand_applications_glob(
+        args.applications, args.riot_directory)
+    args.applications_exclude = expand_applications_glob(
+        args.applications_exclude, args.riot_directory)
+
+
 def main():
     """For one board, compile all examples and tests and run test on board."""
     args = PARSER.parse_args()
+    finalize_args(args)
 
     logger = logging.getLogger(args.board)
     if args.loglevel:
