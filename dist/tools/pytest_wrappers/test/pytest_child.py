@@ -18,6 +18,7 @@ from testrunner.spawn import setup_child, teardown_child
 
 
 TEST_LOG_CONSOLE = bool(int(os.environ.get('TEST_LOG_CONSOLE', '1')))
+PYTEST_PROPERTIES_VAR = 'PYTEST_PROPERTIES'
 
 
 #
@@ -27,6 +28,7 @@ TEST_LOG_CONSOLE = bool(int(os.environ.get('TEST_LOG_CONSOLE', '1')))
 SUPPORTED_TEST_NAMES = {'testfunc'}
 SUPPORTED_FIXTURES = {
     'child', 'request',
+    'riot_set_junitxml_properties',
 }
 
 
@@ -74,6 +76,19 @@ def _keep_supported_testfuncs(items, deselected, supported_names):
         else:
             deselected.append(item)
     return selected, deselected
+
+
+@pytest.fixture(scope="session", autouse=True)
+def riot_set_junitxml_properties(request, props_var=PYTEST_PROPERTIES_VAR):
+    """Add properties to junitxml file."""
+    try:
+        config_xml = getattr(request.config, "_xml", None)
+    except AttributeError:
+        pass
+    else:
+        properties = os.environ.get(props_var, '').split(' ')
+        for prop in properties:
+            config_xml.add_global_property(prop, os.environ[prop])
 
 
 class CustomSpawn(pexpect.spawn):

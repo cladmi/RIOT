@@ -30,6 +30,10 @@ PYTESTFLAGS += -p 'pytest_jenkins'
 PYTESTFLAGS += --capture=sys -o junit_logging=system-out
 
 
+PYTEST_PROPERTIES = RIOT_VERSION
+pytest: export PYTEST_PROPERTIES := $(PYTEST_PROPERTIES)
+pytest: export RIOT_VERSION := $(RIOT_VERSION)
+
 .PHONY: pytest
 pytest: $(TEST_DEPS)
 	@# TODO handle 'no tests and create an empty file maybe ?'
