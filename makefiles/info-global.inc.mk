@@ -55,7 +55,7 @@ info-buildsizes-diff: SHELL=bash
 info-buildsizes-diff:
 	@echo -e "text\tdata\tbss\tdec\tBOARD/BINDIRBASE\n"; \
 	for board in $(BOARDS); do \
-	  for BINDIRBASE in $${OLDBIN} $${NEWBIN}; do \
+	  for BINDIRBASE in $(abspath $(OLDBIN)) $(abspath $(NEWBIN)); do \
 	      BINDIRBASE=$${BINDIRBASE} BOARD=$${board} $(MAKE) info-buildsize --no-print-directory 2>/dev/null | tail -n-1 | cut -f-4; \
 	  done | \
 	  while read -a OLD && read -a NEW; do \
@@ -70,8 +70,8 @@ info-buildsizes-diff:
 	      echo -ne "$${DIFF}\t$(COLOR_RESET)"; \
 	    done; \
 	    echo "$${board}"; \
-	    for I in 0 1 2 3; do echo -ne "$${OLD[I]-$(COLOR_RED)ERR$(COLOR_RESET)}\t"; done; echo -e "$${OLDBIN}"; \
-	    for I in 0 1 2 3; do echo -ne "$${NEW[I]-$(COLOR_RED)ERR$(COLOR_RESET)}\t"; done; echo -e "$${NEWBIN}\n"; \
+	    for I in 0 1 2 3; do echo -ne "$${OLD[I]-$(COLOR_RED)ERR$(COLOR_RESET)}\t"; done; echo -e "$(OLDBIN)"; \
+	    for I in 0 1 2 3; do echo -ne "$${NEW[I]-$(COLOR_RED)ERR$(COLOR_RESET)}\t"; done; echo -e "$(NEWBIN)\n"; \
 	  done; \
 	done;
 
