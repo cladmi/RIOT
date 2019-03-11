@@ -12,8 +12,12 @@ include $(RIOT_MAKEFILES_GLOBAL_PRE)
 # include Makefile.local if it exists
 -include Makefile.local
 
-# set undefined variables
 RIOTBASE       ?= $(_riotbase)
+# RIOTBASE is overwritten to its absolute path as examples defines it as
+# $(CURDIR)/../..
+RIOTBASE       := $(abspath $(RIOTBASE))
+
+# set undefined variables
 CCACHE_BASEDIR ?= $(RIOTBASE)
 RIOTCPU        ?= $(RIOTBASE)/cpu
 RIOTBOARD      ?= $(RIOTBASE)/boards
@@ -49,32 +53,26 @@ __DIRECTORY_VARIABLES := \
   DLCACHE_DIR \
   #
 
-# Make all paths absolute.
-override RIOTBASE       := $(abspath $(RIOTBASE))
-override CCACHE_BASEDIR := $(abspath $(CCACHE_BASEDIR))
-override RIOTCPU        := $(abspath $(RIOTCPU))
-override RIOTBOARD      := $(abspath $(RIOTBOARD))
-override RIOTMAKE       := $(abspath $(RIOTMAKE))
-override RIOTPKG        := $(abspath $(RIOTPKG))
-override RIOTTOOLS      := $(abspath $(RIOTTOOLS))
-override RIOTPROJECT    := $(abspath $(RIOTPROJECT))
-override GITCACHE       := $(abspath $(GITCACHE))
-override APPDIR         := $(abspath $(APPDIR))
-override BUILD_DIR      := $(abspath $(BUILD_DIR))
-override BINDIRBASE     := $(abspath $(BINDIRBASE))
-override BINDIR         := $(abspath $(BINDIR))
-override PKGDIRBASE     := $(abspath $(PKGDIRBASE))
-override DLCACHE_DIR    := $(abspath $(DLCACHE_DIR))
 
-# Ensure that all directories are set and don't contain spaces.
-ifneq (, $(filter-out 1, $(foreach v,$(__DIRECTORY_VARIABLES),$(words $($(v))))))
-  $(info Aborting compilation for your safety.)
-  $(info Related variables = $(__DIRECTORY_VARIABLES))
-  $(error Make sure no path override is empty or contains spaces!)
+# Return the variablename whose path is invalid for 'invalid_dir'
+invalid_dir_var = $(if $(strip $(call invalid_dir,$($1),$1)),$1)
+
+# Prints warning if the directory is invalid and return a non empty value
+# * does not contain spaces
+# * is the same as 'abspath' the directory
+# $1:value
+# $2:variable name
+define invalid_dir
+  $(if $(findstring 1,$(words $1)),,$(warning $2 contains space '$1')space)
+  $(if $(findstring $(abspath $1),$1),,$(warning $2 is not absolute '$1')not_absolute)
+endef
+
+# Check that directory variables are valid
+INVALID_DIRECTORY_VARS := $(strip $(foreach v,$(__DIRECTORY_VARIABLES),$(call invalid_dir_var,$(v))))
+ifneq (,$(INVALID_DIRECTORY_VARS))
+  $(error Aborting compilation these directories variables are invalid $(INVALID_DIRECTORY_VARS))
 endif
 
-# Use absolute paths in recusive "make" even if overriden on command line.
-MAKEOVERRIDES += $(foreach v,$(__DIRECTORY_VARIABLES),$(v)=$($(v)))
 
 # Path to the current directory relative to RIOTPROJECT
 # trailing '/' is important when RIOTPROJECT == CURDIR
