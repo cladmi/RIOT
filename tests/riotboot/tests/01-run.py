@@ -16,24 +16,26 @@ def testfunc(child):
     child.expect("Current slot=0")
     child.expect('>')
 
+    # Ask for address of slot 0
+    child.sendline("getslotaddr 0")
+    child.expect(r"Slot 0 address=(0x[0-9a-fA-F]{8})")
+    slot0_address = child.match.group(1)
+    child.expect('>')
+
     # Ask for current slot header info and checks for basic output integrity
     child.sendline("curslothdr")
     # Magic number is "RIOT" (always in little endian)
     child.expect_exact("Image magic_number: 0x544f4952")
     # Other info is hardware/app dependant so we just check basic compliance
     child.expect("Image Version: 0x[0-9a-fA-F]{8}")
-    child.expect("Image start address: 0x[0-9a-fA-F]{8}")
+    child.expect("Image start address: %s" % slot0_address)
     child.expect("Header chksum: 0x[0-9a-fA-F]{8}")
-    child.expect('>')
-
-    # Ask for address of slot 0
-    child.sendline("getslotaddr 0")
-    child.expect("Slot 0 address=0x[0-9a-fA-F]{8}")
     child.expect('>')
 
     # Ask for data of all slots
     child.sendline("dumpaddrs")
-    child.expect("slot 0: metadata: 0x[0-9a-fA-F]{1,8} image: 0x[0-9a-fA-F]{8}")
+    child.expect("slot 0: metadata: 0x[0-9a-fA-F]{1,8} image: %s" %
+                 slot0_address)
     child.expect('>')
 
 
