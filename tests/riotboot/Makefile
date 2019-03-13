@@ -20,7 +20,7 @@ QUIET ?= 1
 
 # Target 'all' will generate the combined file directly.
 # It also makes 'flash' and 'flash-only' work without specific command.
-FLASHFILE = $(RIOTBOOT_COMBINED_BIN)
+FLASHFILE = $(RIOTBOOT_EXTENDED_BIN)
 
 include ../Makefile.tests_common
 include $(RIOTBASE)/Makefile.include
