@@ -55,12 +55,13 @@ def setup_child(timeout=10, spawnclass=pexpect.spawnu, env=None, logfile=None):
 
     child.logfile = logfile
 
-    try:
-        subprocess.check_output(('make', 'reset'), env=env,
-                                stderr=subprocess.PIPE)
-    except subprocess.CalledProcessError:
-        # make reset yields error on some boards even if successful
-        pass
+    if 'test_utils_interactive_sync' not in modules_list():
+        try:
+            subprocess.check_output(('make', 'reset'), env=env,
+                                    stderr=subprocess.PIPE)
+        except subprocess.CalledProcessError:
+            # make reset yields error on some boards even if successful
+            pass
 
     # Handle synchronization if request by the build system
     sync_child(child)
