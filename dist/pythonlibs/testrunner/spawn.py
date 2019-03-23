@@ -36,6 +36,16 @@ def find_exc_origin(exc_info):
 
 
 def setup_child(timeout=10, spawnclass=pexpect.spawnu, env=None, logfile=None):
+    # Reset before make term is there
+    # Some boards cannot reset when make term is there
+    #
+    # The goal is to get rid of the `make reset` after `make term`.
+    try:
+        subprocess.check_output(('make', 'reset'), env=env,
+                                stderr=subprocess.PIPE)
+    except subprocess.CalledProcessError:
+        # make reset yields error on some boards even if successful
+        pass
     child = spawnclass("make cleanterm", env=env, timeout=timeout,
                        codec_errors='replace', echo=False)
 
