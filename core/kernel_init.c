@@ -36,6 +36,9 @@
 #include <auto_init.h>
 #endif
 
+/* HACK This should be defined somewhere else for documentation purpose */
+extern void core_pre_main_function(void);
+
 extern int main(void);
 static void *main_trampoline(void *arg)
 {
@@ -46,6 +49,10 @@ static void *main_trampoline(void *arg)
 #endif
 
     LOG_INFO("main(): This is RIOT! (Version: " RIOT_VERSION ")\n");
+
+#ifdef MODULE_CORE_PRE_MAIN_FUNCTION
+    core_pre_main_function();
+#endif
 
     main();
     return NULL;

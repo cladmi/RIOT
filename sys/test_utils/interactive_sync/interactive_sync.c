@@ -1,6 +1,14 @@
 #include <stdio.h>
 #include "test_utils/interactive_sync.h"
 
+/* This function will be called automatically before `main`.*/
+#ifdef MODULE_TEST_UTILS_INTERACTIVE_SYNC_AUTOCALL
+void core_pre_main_function(void)
+{
+    test_utils_interactive_sync();
+}
+#endif
+
 void test_utils_interactive_sync(void)
 {
     char c = '\0'; /* Print help on first loop */

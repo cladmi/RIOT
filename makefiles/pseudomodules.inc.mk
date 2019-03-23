@@ -7,6 +7,7 @@ PSEUDOMODULES += ccn-lite-utils
 PSEUDOMODULES += conn_can_isotp_multi
 PSEUDOMODULES += cord_ep_standalone
 PSEUDOMODULES += core_%
+PSEUDOMODULES += core_pre_main_function  # This is to allow calling a function before main
 PSEUDOMODULES += cortexm_fpu
 PSEUDOMODULES += cpu_check_address
 PSEUDOMODULES += devfs_%
@@ -85,6 +86,8 @@ PSEUDOMODULES += stdio_ethos
 PSEUDOMODULES += stdio_cdc_acm
 PSEUDOMODULES += stdio_uart_rx
 PSEUDOMODULES += sock_dtls
+
+PSEUDOMODULES += test_utils_interactive_sync_autocall
 
 # print ascii representation in function od_hex_dump()
 PSEUDOMODULES += od_string

@@ -4,4 +4,6 @@ SRC := $(filter-out mbox.c msg.c thread_flags.c,$(wildcard *.c))
 # enable submodules
 SUBMODULES := 1
 
+SUBMODULES_NOFORCE = 1
+
 include $(RIOTBASE)/Makefile.base
