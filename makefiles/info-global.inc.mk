@@ -1,21 +1,53 @@
 .PHONY: info-buildsizes info-buildsizes-diff info-features-missing \
         info-boards-features-missing
 
-USEMODULE_GLOBAL := $(USEMODULE)
-USEPKG_GLOBAL := $(USEPKG)
-FEATURES_REQUIRED_GLOBAL := $(FEATURES_REQUIRED)
-FEATURES_OPTIONAL_GLOBAL := $(FEATURES_OPTIONAL)
-DISABLE_MODULE_GLOBAL := $(DISABLE_MODULE_GLOBAL)
+# Features
+FEATURES_DEPS_VARIABLES_COMMON += FEATURES_PROVIDED FEATURES_OPTIONAL FEATURES_REQUIRED
+FEATURES_DEPS_VARIABLES_COMMON += FEATURES_CONFLICT FEATURES_CONFLICT_MSG
+FEATURES_DEPS_VARIABLES_COMMON += FEATURES_MCU_GROUP
+# Defined by Makefile.dep
+FEATURES_DEPS_VARIABLES_COMMON += USEMODULE USEPKG DISABLE_MODULE
+FEATURES_DEPS_VARIABLES_COMMON += OLD_USEMODULE OLD_USEPKG
+FEATURES_DEPS_VARIABLES_COMMON += FEATURES_USED
+# Defined here but should change
+FEATURES_DEPS_VARIABLES_COMMON += FEATURES_MISSING
+# Others
+FEATURES_DEPS_VARIABLES_COMMON += BUILDTEST_MCU_GROUP
+
+# BSP defined variables
+FEATURES_DEPS_VARIABLES_COMMON += FEATURES_DEPS_VARIABLES
+FEATURES_DEPS_VARIABLES = # Set to empty by default and must be set by each bsp
+
+
+# TODO
+#
+# Maybe some variables must not be defined at all when starting to parse the
+# files like 'CPU_MODEL' which is defined as `?=`.
+#
+# This would require some specific added handling
+
+
+# Handling of saving and restoring global state variables
+FEATURES_DEPS_VARIABLES_ALL = $(FEATURES_DEPS_VARIABLES_COMMON) $(FEATURES_DEPS_VARIABLES)
+save-features-deps-variables = $(eval $(foreach var,$(FEATURES_DEPS_VARIABLES_ALL),$(eval __$(var)_saved := $($(var)))))
+restore-features-deps-variables-immediate = $(eval $(foreach var,$(FEATURES_DEPS_VARIABLES_ALL),$(eval $(var) := $(__$(var)_saved))))
+
+
+# Give information on which variable is set between 'saved' and 'added'
+save-all-variables = $(eval _ALL_VARIABLES_SAVED:= $$(sort $(.VARIABLES) _ALL_VARIABLES_SAVED))
+added-variables = $(strip $(foreach v,$(.VARIABLES),$(if $(findstring $(v),$(_ALL_VARIABLES_SAVED)),,$(v))))
 
 define board_missing_features
   BOARD             := $(1)
-  USEMODULE         := $(USEMODULE_GLOBAL)
-  USEPKG            := $(USEPKG_GLOBAL)
-  DISABLE_MODULE    := $(DISABLE_MODULE_GLOBAL)
-  FEATURES_REQUIRED := $(FEATURES_REQUIRED_GLOBAL)
-  FEATURES_OPTIONAL := $(FEATURES_OPTIONAL_GLOBAL)
-  FEATURES_MISSING  :=
-  FEATURES_PROVIDED :=
+
+  # Ensure only known variables are set when parsing dependencies
+  # They will be restored after the parsing to their original value
+  # Note: They will be re-evaluated to their immediate value
+  $$(call save-features-deps-variables)
+
+  # Save all current variables
+  $$(call save-all-variables)
+
   include $$(RIOTBOARD)/$(1)/Makefile.features
   ifdef BUILDTEST_MCU_GROUP
     ifneq ($(BUILDTEST_MCU_GROUP), $$(FEATURES_MCU_GROUP))
@@ -33,6 +65,15 @@ define board_missing_features
       BOARDS_WITH_MISSING_FEATURES += $(1)
     endif
   endif
+
+  # Check that no unknown variables were defined
+  ifneq (,$$(call added-variables))
+    $$(warning Board $(BOARD) added new variables when parsing dependencies)
+    $$(warning Newly added variables '$$(call added-variables)')
+    $$(warning These variables must be added to FEATURES_DEPS_VARIABLES in the board/cpu Makefile.features)
+  endif
+
+  $$(call restore-features-deps-variables-immediate)
 endef
 
 BOARDS ?= $(shell find $(RIOTBOARD)/* -maxdepth 0 -type d \! -name "common" -exec basename {} \;)
