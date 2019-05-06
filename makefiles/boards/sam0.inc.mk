@@ -37,5 +37,11 @@ ifeq ($(PROGRAMMER),edbg)
   endif
 endif
 
-# this board uses openocd for debug and possibly flashing
-include $(RIOTMAKE)/tools/openocd.inc.mk
+ifeq ($(DEBUGPROGRAM),jlink)
+  # It requires plugging JLink to the JTAG connector for example on the
+  # `saml11-xpro`.
+  include $(RIOTMAKE)/tools/jlink.inc.mk
+else
+  # this board uses openocd for debug and possibly flashing
+  include $(RIOTMAKE)/tools/openocd.inc.mk
+endif
