@@ -2,4 +2,9 @@ export CPU_FAM  = saml11
 export CPU_MODEL = saml11e16a
 export CFLAGS += -D__SAML11E16A__
 
+# Use 'Jlink' as debug program as currently not available/configured with
+# openocd. It requires connecting a Jlink probe to the jtag connector.
+export JLINK_DEVICE = atsaml11e16a
+DEBUGPROGRAM = jlink
+
 include $(RIOTBOARD)/common/saml1x/Makefile.include
