@@ -424,12 +424,6 @@ binfile: $(BINFILE)
 # (can be overwritten to $(HEXFILE), $(BINFILE))
 flashfile: $(FLASHFILE)
 
-# variables used to compile and link c++
-CPPMIX ?= $(if $(wildcard *.cpp),1,)
-
-# We assume $(LINK) to be gcc-like. Use `LINKFLAGPREFIX :=` for ld-like linker options.
-LINKFLAGPREFIX ?= -Wl,
-
 DIRS += $(EXTERNAL_MODULE_DIRS)
 
 # Define dependencies required for building (headers, downloading source files,)
@@ -440,13 +434,34 @@ BUILDDEPS += $(APPDEPS)
 # Save value to verify it is not modified later
 _BASELIBS_VALUE_BEFORE_USAGE := $(BASELIBS)
 
+# variables used to compile and link c++
+CPPMIX ?= $(if $(wildcard *.cpp),1,)
+LINKCMD ?= $(if $(CPPMIX),$(LINKXX),$(LINK))
+
+# We assume $(LINK) to be gcc-like. Use `LINKFLAGPREFIX :=` for ld-like linker options.
+LINKFLAGPREFIX ?= -Wl,
+LINKFLAG_STARTGROUP ?= $(LINKFLAGPREFIX)--start-group
+LINKFLAG_ENDGROUP ?= $(LINKFLAGPREFIX)--end-group
+
+LINKFLAGS_MAP ?= $(LINKFLAGPREFIX)-Map=$(BINDIR)/$(APPLICATION).map
+LINKFLAGS += $(LINKFLAGS_MAP)
+
+LINK_LIBRARIES ?= $(BASELIBS) -lm
+
+ifeq ($(BUILDOSXNATIVE),1)
+  LINKFLAG_STARTGROUP =
+  LINKFLAG_ENDGROUP =
+  LINKFLAGS_MAP =
+  LINKFLAGS += $(LINKFLAGPREFIX)-no_pie
+  # Overwrite the default LINK_LIBRARIES
+  LINK_LIBRARIES = $$(find $(BASELIBS) -size +8c)
+endif # BUILDOSXNATIVE
+
+
 # Linker rule
 $(ELFFILE): FORCE
-ifeq ($(BUILDOSXNATIVE),1)
-  _LINK = $(if $(CPPMIX),$(LINKXX),$(LINK)) $(UNDEF) $$(find $(BASELIBS) -size +8c) $(LINKFLAGS) $(LINKFLAGPREFIX)-no_pie
-else
-  _LINK = $(if $(CPPMIX),$(LINKXX),$(LINK)) $(UNDEF) $(LINKFLAGPREFIX)--start-group $(BASELIBS) -lm $(LINKFLAGPREFIX)--end-group $(LINKFLAGS) $(LINKFLAGPREFIX)-Map=$(BINDIR)/$(APPLICATION).map
-endif # BUILDOSXNATIVE
+LINKCMDFLAGS ?= $(UNDEF) $(LINKFLAG_STARTGROUP) $(LINK_LIBRARIES) $(LINKFLAG_ENDGROUP) $(LINKFLAGS)
+_LINK = $(LINKCMD) $(LINKCMDFLAGS)
 
 ifeq ($(BUILD_IN_DOCKER),1)
 link: ..in-docker-container
