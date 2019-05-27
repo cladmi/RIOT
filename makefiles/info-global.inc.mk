@@ -45,19 +45,21 @@ endef
 BOARDS_WITH_MISSING_FEATURES :=
 BOARDS_FEATURES_MISSING :=
 $(foreach BOARD,$(BOARDS_ENABLED),$(eval $(call board_missing_features,$(BOARD))))
-BOARDS := $(filter-out $(BOARDS_WITH_MISSING_FEATURES),$(BOARDS_ENABLED))
+
+# List of boards that are enabled and have all required features
+BOARDS_SUPPORTED ?= $(filter-out $(BOARDS_WITH_MISSING_FEATURES),$(BOARDS_ENABLED))
 
 info-buildsizes: SHELL=bash
 info-buildsizes:
 	@echo -e "   text\t   data\t    bss\t    dec\tboard"; \
-	for board in $(BOARDS); do \
+	for board in $(BOARDS_SUPPORTED); do \
 	    echo "$$(BOARD=$${board} $(MAKE) --no-print-directory info-buildsize 2>/dev/null | tail -n-1 | cut -f-4)" "$${board}"; \
 	done;
 
 info-buildsizes-diff: SHELL=bash
 info-buildsizes-diff:
 	@echo -e "text\tdata\tbss\tdec\tBOARD/BINDIRBASE\n"; \
-	for board in $(BOARDS); do \
+	for board in $(BOARDS_SUPPORTED); do \
 	  for BINDIRBASE in $${OLDBIN} $${NEWBIN}; do \
 	      BINDIRBASE=$${BINDIRBASE} BOARD=$${board} $(MAKE) info-buildsize --no-print-directory 2>/dev/null | tail -n-1 | cut -f-4; \
 	  done | \
@@ -79,7 +81,7 @@ info-buildsizes-diff:
 	done;
 
 info-boards-supported:
-	@echo $(BOARDS)
+	@echo $(BOARDS_SUPPORTED)
 
 info-boards-features-missing:
 	@for f in $(BOARDS_FEATURES_MISSING); do echo $${f}; done | column -t

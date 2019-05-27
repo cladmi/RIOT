@@ -5,7 +5,7 @@ BUILDTEST_MAKE_REDIRECT ?= >/dev/null 2>&1
 buildtest:
 	@ \
 	RESULT=true ; \
-	for board in $(BOARDS); do \
+	for board in $(BOARDS_SUPPORTED); do \
 		if BOARD=$${board} $(MAKE) check-toolchain-supported > /dev/null 2>&1; then \
 			$(COLOR_ECHO) -n "Building for $$board ... " ; \
 			BOARD=$${board} RIOT_CI_BUILD=1 \
