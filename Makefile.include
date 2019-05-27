@@ -667,19 +667,15 @@ ifneq (, $(filter all flash, $(if $(MAKECMDGOALS), $(MAKECMDGOALS), all)))
   endif
 
   # If there is a whitelist, then test if the board is whitelisted.
-  ifneq (, $(BOARD_WHITELIST))
-    ifeq (, $(filter $(BOARD_WHITELIST), $(BOARD)))
-      $(shell $(COLOR_ECHO) "$(COLOR_RED)The selected BOARD=$(BOARD) is not whitelisted:$(COLOR_RESET) $(BOARD_WHITELIST)" 1>&2)
-      EXPECT_ERRORS := 1
-    endif
+  ifeq (,$(filter $(or $(BOARD_WHITELIST),%), $(BOARD)))
+    $(shell $(COLOR_ECHO) "$(COLOR_RED)The selected BOARD=$(BOARD) is not whitelisted:$(COLOR_RESET) $(BOARD_WHITELIST)" 1>&2)
+    EXPECT_ERRORS := 1
   endif
 
   # If there is a blacklist, then test if the board is blacklisted.
-  ifneq (, $(BOARD_BLACKLIST))
-    ifneq (, $(filter $(BOARD_BLACKLIST), $(BOARD)))
-      $(shell $(COLOR_ECHO) "$(COLOR_RED)The selected BOARD=$(BOARD) is blacklisted:$(COLOR_RESET) $(BOARD_BLACKLIST)" 1>&2)
-      EXPECT_ERRORS := 1
-    endif
+  ifeq (,$(filter-out $(BOARD_BLACKLIST), $(BOARD)))
+    $(shell $(COLOR_ECHO) "$(COLOR_RED)The selected BOARD=$(BOARD) is blacklisted:$(COLOR_RESET) $(BOARD_BLACKLIST)" 1>&2)
+    EXPECT_ERRORS := 1
   endif
 
   #  test if toolchain is supported.
