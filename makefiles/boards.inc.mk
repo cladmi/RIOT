@@ -9,6 +9,13 @@ ALLBOARDS ?= $(sort $(filter-out common,$(patsubst $(RIOTBOARD)/%/.,%,$(wildcard
 # Set the default value from `BOARDS`
 BOARDS ?= $(ALLBOARDS)
 
-.PHONY: info-boards
+# Enabled boards, whitelisted and not blacklisted
+# It only has a sensible value from inside an application
+BOARDS_ENABLED ?= $(filter-out $(BOARD_BLACKLIST),$(filter $(or $(BOARD_WHITELIST),%),$(BOARDS)))
+
+.PHONY: info-boards info-boards-enabled
 info-boards:
 	@echo $(BOARDS)
+
+info-boards-enabled:
+	@echo $(BOARDS_ENABLED)

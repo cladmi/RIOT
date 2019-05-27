@@ -42,13 +42,10 @@ define board_missing_features
   endif
 endef
 
-BOARDS := $(filter $(if $(BOARD_WHITELIST), $(BOARD_WHITELIST), %), $(BOARDS))
-BOARDS := $(filter-out $(BOARD_BLACKLIST), $(BOARDS))
-
 BOARDS_WITH_MISSING_FEATURES :=
 BOARDS_FEATURES_MISSING :=
-$(foreach BOARD, $(BOARDS), $(eval $(call board_missing_features,$(BOARD))))
-BOARDS := $(filter-out $(BOARDS_WITH_MISSING_FEATURES), $(BOARDS))
+$(foreach BOARD,$(BOARDS_ENABLED),$(eval $(call board_missing_features,$(BOARD))))
+BOARDS := $(filter-out $(BOARDS_WITH_MISSING_FEATURES),$(BOARDS_ENABLED))
 
 info-buildsizes: SHELL=bash
 info-buildsizes:
