@@ -240,12 +240,6 @@ ifneq (, $(filter $(MSP430_BOARDS), $(BOARD)))
   UNIT_TESTS := $(filter-out $(DISABLE_TEST_FOR_MSP430), $(UNIT_TESTS))
 endif
 
-ifneq (,$(filter tests-cpp_%, $(UNIT_TESTS)))
-  # We need to tell the build system to use the C++ compiler for linking
-  export FEATURES_REQUIRED += cpp
-  export CPPMIX := 1
-endif
-
 DISABLE_MODULE += auto_init
 
 # Pull in `Makefile.include`s from the test suites:

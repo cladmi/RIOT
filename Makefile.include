@@ -432,9 +432,6 @@ binfile: $(BINFILE)
 # (can be overwritten to $(HEXFILE), $(BINFILE))
 flashfile: $(FLASHFILE)
 
-# variables used to compile and link c++
-CPPMIX ?= $(if $(wildcard *.cpp),1,)
-
 # We assume $(LINK) to be gcc-like. Use `LINKFLAGPREFIX :=` for ld-like linker options.
 LINKFLAGPREFIX ?= -Wl,
 
