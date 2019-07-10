@@ -14,6 +14,8 @@
 #include <linux/if.h>
 #include <linux/if_tun.h>
 #include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/un.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -21,6 +23,7 @@
 #include <sys/select.h>
 #include <sys/time.h>
 #include <stdlib.h>
+#include <signal.h>
 
 #include <netdb.h>
 
@@ -41,6 +44,10 @@
 #define TCP_DEV "tcp:"
 #define IOTLAB_TCP_PORT "20000"
 
+#define UNIX_SOCKET_DEV "socket:"
+static char ifname[IFNAMSIZ];
+static struct sockaddr_un localsocket = {.sun_family=AF_UNIX};
+
 /* Size of serial write buffer */
 #define SERIAL_BUFFER_SIZE 64
 
@@ -48,6 +55,8 @@ static void usage(void)
 {
     fprintf(stderr, "Usage: ethos <tap> <serial> [baudrate]\n");
     fprintf(stderr, "       ethos <tap> tcp:<host> [port]\n");
+    fprintf(stderr, "       ethos socket:filename <serial> [baudrate]\n");
+    fprintf(stderr, "       ethos socket:filename tcp:<host> [port]\n");
 }
 
 static void checked_write(int handle, void *buffer, int nbyte)
@@ -501,6 +510,66 @@ int _open_connection(char *name, char* option)
     }
 }
 
+void _remove_socket()
+{
+    unlink(localsocket.sun_path);
+}
+
+void _sigcleanup(int signo)
+{
+    fprintf(stderr, "signal %d\n", signo);
+    exit(0);
+}
+
+int _open_unix_socket(char *name)
+{
+    int ret;
+
+    /* Remove 'socket:' */
+    name = &name[sizeof(UNIX_SOCKET_DEV) -1];
+
+    /* Try with SOCK_DGRAM to not handle connections with SOCK_SEQPACKET */
+    int sfd = socket(AF_UNIX, SOCK_DGRAM , 0);
+    if (sfd < 0) {
+        fprintf(stderr, "Could not open socket\n");
+        return 1;
+    }
+
+    strncpy(localsocket.sun_path, name, sizeof(localsocket.sun_path) -1);
+    unlink(localsocket.sun_path);
+
+    ret = bind(sfd, (struct sockaddr *)&localsocket,
+           sizeof(struct sockaddr_un));
+    if (ret == -1) {
+        close(sfd);
+        perror("bind");
+        exit(EXIT_FAILURE);
+    }
+
+
+    atexit(_remove_socket);
+    signal(SIGHUP, _sigcleanup);
+    signal(SIGTERM, _sigcleanup);
+    signal(SIGINT, _sigcleanup);
+
+    return sfd;
+}
+
+int _open_tap_interface(char *name)
+{
+    strncpy(ifname, name, IFNAMSIZ);
+    return tun_alloc(ifname, IFF_TAP | IFF_NO_PI);
+}
+
+int _open_interface(char *name)
+{
+    if (strncmp(name, UNIX_SOCKET_DEV, strlen(UNIX_SOCKET_DEV)) == 0) {
+        return _open_unix_socket(name);
+    } else {
+        return _open_tap_interface(name);
+    }
+}
+
 int main(int argc, char *argv[])
 {
     char inbuf[MTU];
@@ -517,10 +586,7 @@ int main(int argc, char *argv[])
         serial_option = argv[3];
     }
 
-    char ifname[IFNAMSIZ];
-    strncpy(ifname, argv[1], IFNAMSIZ);
-    int tap_fd = tun_alloc(ifname, IFF_TAP | IFF_NO_PI);
-
+    int tap_fd = _open_interface(argv[1]);
     if (tap_fd < 0) {
         return 1;
     }
