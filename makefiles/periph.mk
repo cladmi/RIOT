@@ -1,7 +1,7 @@
 MODULE ?= periph
 
-# enable submodules
-SUBMODULES := 1
+# match all possible periph_ submodules.
+SUBMODULES ?= $(BASE_MODULE)_%
 
 # don't fail if requested submodule does not have corresponding *.c file
 SUBMODULES_NOFORCE := 1
