@@ -29,7 +29,34 @@ $(DIRS:%=CLEAN--%):
 BASE_MODULE ?= $(MODULE)
 
 ## submodules
-ifeq (1, $(SUBMODULES))
+ifneq (,$(filter $(BASE_MODULE)_%,$(SUBMODULES)))
+  # SUBMODULES set to the list of all the submodules of the current module
+  # Can be set to $(BASE_MODULE)_% to match all.
+
+  # do not use *.c as SRC if SRC is empty (e.g., no module selected)
+  NO_AUTO_SRC = 1
+
+  # Automatically find module main sources
+  # When wildcard, MODULE_SRC will be empty ('filter-out %.c')
+  _SUBMODULES_SRC = $(SUBMODULES:$(BASE_MODULE)_%=%.c)
+  MODULE_SRC = $(filter-out $(_SUBMODULES_SRC),$(wildcard *.c))
+
+  # Sources of submodules
+  # By default all files with a '$(BASE_MODULE)_filename' module
+  # When SUBMODULES_NOFORCE, only keep existing files
+  USED_SUBMODULES = $(filter $(SUBMODULES),$(USEMODULE))
+  _USED_SUBMODULES_SRC = $(USED_SUBMODULES:$(BASE_MODULE)_%=%.c)
+  USED_SUBMODULES_SRC = $(if $(findstring 1,$(SUBMODULES_NOFORCE)),\
+                          $(wildcard $(_USED_SUBMODULES_SRC)),\
+                          $(_USED_SUBMODULES_SRC))
+
+  # Sources are by default:
+  # - automatically found module sources
+  # - submodules soruces
+  # Setting 'SRC' in the Makefile will prevent auto-detection of module soruces
+  SRC ?= $(MODULE_SRC)
+  SRC += $(USED_SUBMODULES_SRC)
+else ifeq (1, $(SUBMODULES))
   # don't use *.c as SRC if SRC is empty (e.g., no module selected)
   NO_AUTO_SRC := 1
 
