@@ -22,13 +22,16 @@ $(DIRS:%=ALL--%):
 $(DIRS:%=CLEAN--%):
 	$(QQ)"$(MAKE)" -C $(@:CLEAN--%=%) clean
 
+# SUBMODULES Handling
+#
+# Base of submodule names.
+# allow different submodule basename (e.g., MODULE=cpu_periph_common, but match just periph_%)
+BASE_MODULE ?= $(MODULE)
+
 ## submodules
 ifeq (1, $(SUBMODULES))
   # don't use *.c as SRC if SRC is empty (e.g., no module selected)
   NO_AUTO_SRC := 1
-
-  # allow different submodule basename (e.g., MODULE=cpu_periph_common, but match just periph_%)
-  BASE_MODULE ?= $(MODULE)
 
   # for each $(BASE_MODULE)_<name> in USEMODULE, add <name>.c to SRC
   SRC += $(patsubst $(BASE_MODULE)_%,%.c,$(filter $(BASE_MODULE)_%,$(USEMODULE)))
