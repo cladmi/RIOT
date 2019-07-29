@@ -1,3 +1,3 @@
-SRC := nanocoap.c
-SUBMODULES := 1
+SUBMODULES = nanocoap_sock
+
 include $(RIOTBASE)/Makefile.base
