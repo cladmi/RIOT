@@ -67,6 +67,13 @@ else ifeq (1, $(SUBMODULES))
   ifeq (1, $(SUBMODULES_NOFORCE))
     SRC := $(filter $(SRC), $(wildcard *.c))
   endif
+
+  $(warning 'SUBMODULES = 1' is deprecated.)
+  $(warning It has been replaced by listing all the submodules)
+  $(warning The current behavior can be reproduced by defining 'SUBMODULES = $(BASE_MODULE)_%')
+  ifeq (11,$(RIOT_CI_BUILD)$(WERROR))
+    $(error Build failed. Can be ignored by setting WERROR=0)
+  endif
 endif
 
 ifeq ($(strip $(SRC))$(NO_AUTO_SRC),)
