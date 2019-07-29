@@ -1,4 +1,6 @@
 MODULE := libcose_crypt
-SUBMODULES = 1
+
+SRC = # do not use sources other than submodules
+SUBMODULES = libcose_crypt_hacl libcose_crypt_tweetnacl
 
 include $(RIOTBASE)/Makefile.base
