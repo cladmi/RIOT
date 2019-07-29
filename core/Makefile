@@ -1,7 +1,3 @@
-# exclude submodule sources from *.c wildcard source selection
-SRC := $(filter-out mbox.c msg.c thread_flags.c,$(wildcard *.c))
-
-# enable submodules
-SUBMODULES := 1
+SUBMODULES = core_mbox core_msg core_thread_flags
 
 include $(RIOTBASE)/Makefile.base
