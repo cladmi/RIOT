@@ -55,6 +55,29 @@ CPU_LINES_ARRAY+=(-e '^[-]*include $(RIOTCPU)/.*/Makefile.features')
 BOARD_FEATURES_FILES_ARRAY=(boards/*/Makefile.features boards/common/*/Makefile.features)
 CPU_FEATURES_FILES_ARRAY=(cpu/*/Makefile.features)
 
+DEP_LINES_ARRAY=()
+DEP_LINES_ARRAY+=("${EMPTY_LINES_ARRAY[@]}")
+DEP_LINES_ARRAY+=(-e 'include .*/Makefile.dep')
+DEP_LINES_ARRAY+=(-e 'ifneq (,$(filter .*,$(USEMODULE)))')
+DEP_LINES_ARRAY+=(-e 'ifneq (,$(filter .*,$(USEPKG)))')
+DEP_LINES_ARRAY+=(-e 'ifneq (,$(filter .*,$(FEATURES_USED)))')
+DEP_LINES_ARRAY+=(-e '^USEMODULE +=' -e '  USEMODULE +=')
+DEP_LINES_ARRAY+=(-e '^USEPKG +=' -e '  USEPKG +=')
+DEP_LINES_ARRAY+=(-e '^FEATURES_REQUIRED +=' -e '  FEATURES_REQUIRED +=')
+DEP_LINES_ARRAY+=(-e '^FEATURES_OPTIONAL +=' -e '  FEATURES_OPTIONAL +=')
+DEP_LINES_ARRAY+=(-e '^endif')
+
+# Not that I want these in that way but they are currently there
+# Default handling
+DEP_LINES_ARRAY+=(-e '^  ifeq (,$(filter .*,$(USEMODULE)))')
+DEP_LINES_ARRAY+=(-e '^  endif')
+
+DEP_LINES_ARRAY+=(-e '^OLD_USEMODULE := $(sort $(USEMODULE))')
+DEP_LINES_ARRAY+=(-e '^OLD_USEPKG := $(sort $(USEPKG))')
+DEP_LINES_ARRAY+=(-e '^USEMODULE := $(sort $(USEMODULE))')
+DEP_LINES_ARRAY+=(-e '^USEPKG := $(sort $(USEPKG))')
+DEP_LINES_ARRAY+=(-e '^ifneq ($(OLD_USEMODULE) $(OLD_USEPKG),$(USEMODULE) $(USEPKG))')
+
 
 check_board_features() {
     grep -n -v "${BOARD_LINES_ARRAY[@]}" $@
@@ -72,6 +95,14 @@ check_cpu_features() {
     return $?
 }
 
+check_dep() {
+    git --no-pager grep -n -v "${DEP_LINES_ARRAY[@]}" '**/Makefile.dep' 'Makefile.dep'
+    # 0 is an error as there are lines
+    (($? != 0))
+    return $?
+}
+
+
 check_cpu_and_board_features() {
     local error=0
 
@@ -82,6 +113,9 @@ check_cpu_and_board_features() {
     error=$(($? || ${error}))
 
     check_cpu_features "${CPU_FEATURES_FILES_ARRAY[@]}"
+    error=$(($? || ${error}))
+
+    check_dep
     error=$(($? || ${error}))
     return ${error}
 }
