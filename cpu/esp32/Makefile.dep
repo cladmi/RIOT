@@ -2,7 +2,7 @@
 
 ifneq (,$(filter cpp,$(FEATURES_USED)))
     USEMODULE += pthread
-    BASELIBS += -lstdc++
+    LIBRARIES += -lstdc++
 endif
 
 ifneq (,$(filter esp_eth,$(USEMODULE)))

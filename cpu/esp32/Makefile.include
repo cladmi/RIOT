@@ -138,11 +138,11 @@ LINKFLAGS += -L$(ESP32_SDK_DIR)/components/esp32
 LINKFLAGS += -L$(ESP32_SDK_DIR)/components/esp32/lib
 
 ifneq (,$(filter esp_wifi_any,$(USEMODULE)))
-    BASELIBS += -lcore -lrtc -lnet80211 -lpp -lsmartconfig -lcoexist
-    BASELIBS += -lwps -lwpa -lwpa2 -lespnow -lmesh -lphy -lstdc++
+    LIBRARIES += -lcore -lrtc -lnet80211 -lpp -lsmartconfig -lcoexist
+    LIBRARIES += -lwps -lwpa -lwpa2 -lespnow -lmesh -lphy -lstdc++
 endif
 
-BASELIBS += -lhal -lg -lc
+LIBRARIES += -lhal -lg -lc
 
 LINKFLAGS += -L$(RIOTCPU)/$(CPU)/ld/
 LINKFLAGS += -T$(RIOTCPU)/$(CPU)/ld/esp32.ld
