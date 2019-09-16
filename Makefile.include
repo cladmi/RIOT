@@ -461,9 +461,12 @@ _BASELIBS_VALUE_BEFORE_USAGE := $(BASELIBS)
 # Linker rule
 $(ELFFILE): FORCE
 ifeq ($(BUILDOSXNATIVE),1)
-  _LINK = $(if $(CPPMIX),$(LINKXX),$(LINK)) $(UNDEF) $$(find $(BASELIBS) -size +8c) $(LINKFLAGS) $(LINKFLAGPREFIX)-no_pie
+  # llvm-ld does not like empty archives
+  LIBRARIES += $$(find $(BASELIBS) -size +8c)
+  _LINK = $(if $(CPPMIX),$(LINKXX),$(LINK)) $(UNDEF) $(LIBRARIES) $(LINKFLAGS) $(LINKFLAGPREFIX)-no_pie
 else
-  _LINK = $(if $(CPPMIX),$(LINKXX),$(LINK)) $(UNDEF) $(LINKFLAGPREFIX)--start-group $(BASELIBS) -lm $(LINKFLAGPREFIX)--end-group $(LINKFLAGS) $(LINKFLAGPREFIX)-Map=$(BINDIR)/$(APPLICATION).map
+  LIBRARIES += $(BASELIBS) -lm
+  _LINK = $(if $(CPPMIX),$(LINKXX),$(LINK)) $(UNDEF) $(LINKFLAGPREFIX)--start-group $(LIBRARIES) $(LINKFLAGPREFIX)--end-group $(LINKFLAGS) $(LINKFLAGPREFIX)-Map=$(BINDIR)/$(APPLICATION).map
 endif # BUILDOSXNATIVE
 
 ifeq ($(BUILD_IN_DOCKER),1)

@@ -58,6 +58,7 @@ export AS                    # The assembler.
 export ASFLAGS               # Flags for the assembler.
 export LINK                  # The command used to link the files. Must take the same parameters as GCC, i.e. "ld" won't work.
 # LINKFLAGS                  # Flags to supply in the linking step.
+# LIBRARIES                  # List of libraries to link. They are linked inside '--start-group', '--end-group' to search repeatedly until all references are resolved.
 export LTOFLAGS              # extra CFLAGS for compiling with link time optimization
 export OBJCOPY               # The command used to create the HEXFILE and BINFILE.
 export OFLAGS                # The parameter for OBJCOPY, e.g. to strip the debug information.
