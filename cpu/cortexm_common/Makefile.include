@@ -69,3 +69,10 @@ SLOT0_LEN ?= $(shell printf "0x%x" $$((($(ROM_LEN:%K=%*1024)-$(RIOTBOOT_LEN)) / 
 SLOT1_LEN ?= $(SLOT0_LEN)
 SLOT0_LEN := $(SLOT0_LEN)
 SLOT1_LEN := $(SLOT1_LEN)
+
+# Transitional:
+# cortexm.inc.mk must be included here, but do not re-include if already
+# included. This allows backward compatibility when it is including this file.
+ifeq (,$(findstring $(RIOTMAKE)/arch/cortexm.inc.mk,$(MAKEFILE_LIST)))
+  include $(RIOTMAKE)/arch/cortexm.inc.mk
+endif

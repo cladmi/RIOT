@@ -1,3 +1,16 @@
+# Transitional:
+# This file should not be included directly by CPUs but by 'cortexm_common'.
+#
+# CPUs must include '$(RIOTCPU)/cortexm_common/Makefile.include' and as well
+# 'cortexm_common/Makefile.dep' and 'cortexm_common/Makefile.features'.
+ifeq (,$(findstring $(RIOTCPU)/cortexm_common/Makefile.include,$(MAKEFILE_LIST)))
+  # TODO add a warning/error here after migration of all CPUs
+  include $(RIOTCPU)/cortexm_common/Makefile.include
+  # Also include 'Makefile.dep' as there were USEMODULE in this file before
+  # migrating them to 'cortexm_common/Makefile.dep'
+  include $(RIOTCPU)/cortexm_common/Makefile.dep
+endif
+
 ifeq (,$(CPU_MODEL))
   $(error CPU_MODEL must have been defined by the board/cpu Makefile.features)
 endif
@@ -122,9 +135,6 @@ VECTORS_O ?= $(BINDIR)/cpu/vectors.o
 ifeq ($(COMMON_STARTUP),)
 export UNDEF += $(VECTORS_O)
 endif
-
-# CPU depends on the cortex-m common module, so include it:
-include $(RIOTCPU)/cortexm_common/Makefile.include
 
 # use the nano-specs of Newlib when available
 USEMODULE += newlib_nano
