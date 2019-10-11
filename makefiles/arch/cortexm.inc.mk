@@ -46,15 +46,6 @@ export LINKFLAGS += -T$(LINKER_SCRIPT) -Wl,--fatal-warnings
 export LINKFLAGS += $(CFLAGS_CPU) $(CFLAGS_DBG) $(CFLAGS_OPT) -static -lgcc -nostartfiles
 export LINKFLAGS += -Wl,--gc-sections
 
-# Tell the build system that the CPU depends on the Cortex-M common files:
-export USEMODULE += cortexm_common
-# Export the peripheral drivers to be linked into the final binary:
-export USEMODULE += periph
-# include common periph code
-export USEMODULE += cortexm_common_periph
-
-# all cortex MCU's use newlib as libc
-export USEMODULE += newlib
 
 
 # extract version inside the first parentheses
@@ -89,6 +80,7 @@ ifneq (,$(filter $(CPU_ARCH),cortex-m4f cortex-m7))
     ifneq (,$(filter cortexm_fpu,$(DISABLE_MODULE)))
         CFLAGS_FPU ?= -mfloat-abi=soft
     else
+        # TODO migrate to 'cortexm_common/Makefile.dep'
         USEMODULE += cortexm_fpu
         # clang assumes there is an FPU
         ifneq (llvm,$(TOOLCHAIN))
@@ -136,8 +128,6 @@ ifeq ($(COMMON_STARTUP),)
 export UNDEF += $(VECTORS_O)
 endif
 
-# use the nano-specs of Newlib when available
-USEMODULE += newlib_nano
 # Avoid overriding the default rule:
 all:
 
