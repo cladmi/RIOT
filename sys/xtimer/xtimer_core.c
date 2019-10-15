@@ -185,6 +185,9 @@ static inline void _lltimer_set(uint32_t target)
 
 int _xtimer_set_absolute(xtimer_t *timer, uint32_t target)
 {
+#if defined(MODULE_PERIPH_TIMER_OVERFLOW)
+    unsigned state = irq_disable();
+#endif
     uint32_t now = _xtimer_now();
     int res = 0;
 
@@ -207,13 +210,18 @@ int _xtimer_set_absolute(xtimer_t *timer, uint32_t target)
           now, target, offset);
 
     if (offset <= XTIMER_BACKOFF) {
+#if defined(MODULE_PERIPH_TIMER_OVERFLOW)
+        irq_restore(state);
+#endif
         /* backoff */
         xtimer_spin_until(target);
         _shoot(timer);
         return 0;
     }
 
+#if !defined(MODULE_PERIPH_TIMER_OVERFLOW)
     unsigned state = irq_disable();
+#endif
     if (_is_set(timer)) {
         _remove(timer);
     }
