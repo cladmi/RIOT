@@ -55,6 +55,9 @@ static uint32_t _time_left(uint32_t target, uint32_t reference);
 
 static void _timer_callback(void);
 static void _periph_timer_callback(void *arg, int chan);
+#ifdef MODULE_PERIPH_TIMER_OVERFLOW
+static void _periph_timer_overflow(void);
+#endif
 
 static inline int _this_high_period(uint32_t target);
 
@@ -74,6 +77,9 @@ static inline void xtimer_spin_until(uint32_t target)
 
 void xtimer_init(void)
 {
+#ifdef MODULE_PERIPH_TIMER_OVERFLOW
+    timer_set_overflow_cb(XTIMER_DEV, _periph_timer_overflow);
+#endif
     /* initialize low-level timer */
     timer_init(XTIMER_DEV, XTIMER_HZ, _periph_timer_callback, NULL);
 
@@ -459,6 +465,13 @@ static void _next_period(void)
 
     _select_long_timers();
 }
+
+#ifdef MODULE_PERIPH_TIMER_OVERFLOW
+static void _periph_timer_overflow(void)
+{
+    puts("lltimer overflow");
+}
+#endif /* MODULE_PERIPH_TIMER_OVERFLOW */
 
 /**
  * @brief main xtimer callback function
