@@ -24,6 +24,9 @@ int main(void)
 {
     xtimer_ticks32_t before, after;
     int irqstate;
+#ifdef MODULE_PERIPH_TIMER_OVERFLOW
+    int flag;
+#endif
 
     while (true) {
         before = xtimer_now();
@@ -31,8 +34,16 @@ int main(void)
         irqstate = irq_disable();
         xtimer_spin((xtimer_ticks32_t){.ticks32=XTIMER_ISR_BACKOFF-1});
         after = xtimer_now();
+#ifdef MODULE_PERIPH_TIMER_OVERFLOW
+        flag = timer_get_overflow_flag(XTIMER_DEV);
+#endif
         irq_restore(irqstate);
 
+#ifdef MODULE_PERIPH_TIMER_OVERFLOW
+        if (flag) {
+            printf("Overflow flag: %u\n", flag);
+        }
+#endif
         if (before.ticks32 >= after.ticks32) {
             printf("%u: %lx < %lx\n", before.ticks32 < after.ticks32, before.ticks32, after.ticks32);
         }
