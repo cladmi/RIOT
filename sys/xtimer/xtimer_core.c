@@ -83,8 +83,10 @@ void xtimer_init(void)
     /* initialize low-level timer */
     timer_init(XTIMER_DEV, XTIMER_HZ, _periph_timer_callback, NULL);
 
+#if !defined(MODULE_PERIPH_TIMER_OVERFLOW)
     /* register initial overflow tick */
     _lltimer_set(0xFFFFFFFF);
+#endif
 }
 
 static void _xtimer_now_internal(uint32_t *short_term, uint32_t *long_term)
@@ -469,7 +471,8 @@ static void _next_period(void)
 #ifdef MODULE_PERIPH_TIMER_OVERFLOW
 static void _periph_timer_overflow(void)
 {
-    puts("lltimer overflow");
+    /* HACK currently call the normal callback */
+    _timer_callback();
 }
 #endif /* MODULE_PERIPH_TIMER_OVERFLOW */
 
@@ -498,9 +501,11 @@ static void _timer_callback(void)
 
         reference = 0;
 
+#if !defined(MODULE_PERIPH_TIMER_OVERFLOW)
         /* make sure the timer counter also arrived
          * in the next timer period */
         while (_xtimer_lltimer_now() == _xtimer_lltimer_mask(0xFFFFFFFF)) {}
+#endif /* !MODULE_PERIPH_TIMER_OVERFLOW */
     }
     else {
         /* we ended up in _timer_callback and there is
@@ -542,6 +547,12 @@ overflow:
         _next_period();
         /* wait till overflow */
         while( reference < _xtimer_lltimer_now()){}
+#if defined(MODULE_PERIPH_TIMER_OVERFLOW)
+        /* HACK this list handling messes up with 'the overflow irq'.
+         * Clear it to not trigger it twice it will just fire for nothing
+         */
+        _timer_clear_overflow_flag_from_isr(XTIMER_DEV);
+#endif
         reference = 0;
         goto overflow;
     }
@@ -555,6 +566,7 @@ overflow:
             goto overflow;
         }
     }
+#if !defined(MODULE_PERIPH_TIMER_OVERFLOW)
     else {
         /* there's no timer planned for this timer period */
         /* schedule callback on next overflow */
@@ -578,6 +590,12 @@ overflow:
             }
         }
     }
+#else /* !defined(MODULE_PERIPH_TIMER_OVERFLOW) */
+    else {
+        _in_handler = 0;
+        return;
+    }
+#endif /* !defined(MODULE_PERIPH_TIMER_OVERFLOW) */
 
     _in_handler = 0;
 

@@ -641,6 +641,7 @@ endif
 ifneq (,$(filter xtimer,$(USEMODULE)))
   FEATURES_REQUIRED += periph_timer
   USEMODULE += div
+  FEATURES_OPTIONAL += periph_timer_overflow
 endif
 
 ifneq (,$(filter saul,$(USEMODULE)))

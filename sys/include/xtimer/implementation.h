@@ -107,6 +107,19 @@ void _xtimer_tsleep(uint32_t offset, uint32_t long_offset);
 #ifndef DOXYGEN
 /* Doxygen warns that these are undocumented, but the documentation can be found in xtimer.h */
 
+static uint32_t _high_count(void)
+{
+    uint32_t latched_high_cnt;
+#ifdef MODULE_PERIPH_TIMER_OVERFLOW
+    int ret = irq_disable();
+    latched_high_cnt = _xtimer_high_cnt + (timer_get_overflow_flag(XTIMER_DEV)?~XTIMER_MASK + 1:0);
+    irq_restore(ret);
+#else
+    latched_high_cnt = _xtimer_high_cnt;
+#endif
+    return latched_high_cnt;
+}
+
 static inline uint32_t _xtimer_now(void)
 {
 #if XTIMER_MASK
@@ -117,9 +130,9 @@ static inline uint32_t _xtimer_now(void)
      * then it can be safely applied to the timer count. */
 
     do {
-        latched_high_cnt = _xtimer_high_cnt;
+        latched_high_cnt = _high_count();
         now = _xtimer_lltimer_now();
-    } while (_xtimer_high_cnt != latched_high_cnt);
+    } while (_high_count() != latched_high_cnt);
 
     return latched_high_cnt | now;
 #else
