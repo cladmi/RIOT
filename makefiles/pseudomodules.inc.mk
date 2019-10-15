@@ -161,6 +161,7 @@ PSEUDOMODULES += stm32_periph_%
 
 # declare periph submodules as pseudomodules, but exclude periph_common
 PSEUDOMODULES += periph_%
+PSEUDOMODULES += periph_timer_overflow
 NO_PSEUDOMODULES += periph_common
 
 # Submodules and auto-init code provided by Skald

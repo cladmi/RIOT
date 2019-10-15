@@ -77,6 +77,8 @@ typedef unsigned int tim_t;
  */
 typedef void (*timer_cb_t)(void *arg, int channel);
 
+typedef void (*timer_overflow_cb_t)(void);
+
 /**
  * @brief   Default interrupt context entry holding callback and argument
  */
@@ -84,6 +86,9 @@ typedef void (*timer_cb_t)(void *arg, int channel);
 typedef struct {
     timer_cb_t cb;          /**< callback executed from timer interrupt */
     void *arg;              /**< optional argument given to that callback */
+#ifdef MODULE_PERIPH_TIMER_OVERFLOW
+    timer_overflow_cb_t overflow_cb; /**< callback executed from timer interrupt on overflow*/
+#endif
 } timer_isr_ctx_t;
 #endif
 
@@ -108,6 +113,19 @@ typedef struct {
  * @return                  -1 if speed not applicable or unknown device given
  */
 int timer_init(tim_t dev, unsigned long freq, timer_cb_t cb, void *arg);
+
+#ifdef MODULE_PERIPH_TIMER_OVERFLOW
+/* set overflow callback
+ * Must be called before timer_init
+ */
+void timer_set_overflow_cb(tim_t dev, timer_overflow_cb_t cb);
+
+int timer_get_overflow_flag(tim_t dev);
+/* This function should only be used from interrupt or masked interrupt.
+ * It is only required for transitionning when overflow is still handled
+ * by xtimer */
+void _timer_clear_overflow_flag_from_isr(tim_t dev);
+#endif
 
 /**
  * @brief Set a given timer channel for the given timer device
