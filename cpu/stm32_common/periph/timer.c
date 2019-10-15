@@ -36,6 +36,13 @@ static inline TIM_TypeDef *dev(tim_t tim)
     return timer_config[tim].dev;
 }
 
+#ifdef MODULE_PERIPH_TIMER_OVERFLOW
+void timer_set_overflow_cb(tim_t tim, timer_overflow_cb_t overflow_cb)
+{
+    isr_ctx[tim].overflow_cb = overflow_cb;
+}
+#endif
+
 int timer_init(tim_t tim, unsigned long freq, timer_cb_t cb, void *arg)
 {
     /* check if device is valid */
@@ -59,6 +66,14 @@ int timer_init(tim_t tim, unsigned long freq, timer_cb_t cb, void *arg)
     dev(tim)->PSC = ((periph_timer_clk(timer_config[tim].bus) / freq) - 1);
     /* generate an update event to apply our configuration */
     dev(tim)->EGR = TIM_EGR_UG;
+
+#ifdef MODULE_PERIPH_TIMER_OVERFLOW
+    /*  enable overflow */
+    if (isr_ctx[tim].overflow_cb) {
+        dev(tim)->SR = ~TIM_SR_UIF;
+        dev(tim)->DIER |= TIM_DIER_UIE;
+    }
+#endif
 
     /* enable the timer's interrupt */
     NVIC_EnableIRQ(timer_config[tim].irqn);
@@ -106,9 +121,30 @@ void timer_stop(tim_t tim)
     dev(tim)->CR1 &= ~(TIM_CR1_CEN);
 }
 
+#ifdef MODULE_PERIPH_TIMER_OVERFLOW
+int timer_get_overflow_flag(tim_t tim)
+{
+    return dev(tim)->SR & TIM_SR_UIF;
+}
+
+void _timer_clear_overflow_flag_from_isr(tim_t tim)
+{
+    dev(tim)->SR = ~TIM_SR_UIF;
+}
+#endif
+
 static inline void irq_handler(tim_t tim)
 {
     uint32_t status = (dev(tim)->SR & dev(tim)->DIER);
+
+#ifdef MODULE_PERIPH_TIMER_OVERFLOW
+    if (status & TIM_SR_UIF) {
+        _timer_clear_overflow_flag_from_isr(tim);
+        if (isr_ctx[tim].overflow_cb) {
+            isr_ctx[tim].overflow_cb();
+        }
+    }
+#endif
 
     for (unsigned int i = 0; i < TIMER_CHAN; i++) {
         if (status & (TIM_SR_CC1IF << i)) {
