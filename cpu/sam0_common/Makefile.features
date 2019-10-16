@@ -5,5 +5,6 @@ FEATURES_PROVIDED += periph_flashpage_rwee
 FEATURES_PROVIDED += periph_gpio periph_gpio_irq
 FEATURES_PROVIDED += periph_uart_modecfg
 FEATURES_PROVIDED += periph_wdt periph_wdt_cb
+FEATURES_PROVIDED += periph_timer_overflow
 
 -include $(RIOTCPU)/cortexm_common/Makefile.features

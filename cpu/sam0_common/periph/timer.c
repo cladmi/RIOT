@@ -71,6 +71,13 @@ static inline void _irq_enable(tim_t tim)
     NVIC_EnableIRQ(timer_config[tim].irq);
 }
 
+#ifdef MODULE_PERIPH_TIMER_OVERFLOW
+void timer_set_overflow_cb(tim_t tim, timer_overflow_cb_t overflow_cb)
+{
+    config[tim].overflow_cb = overflow_cb;
+}
+#endif
+
 /**
  * @brief Setup the given timer
  */
@@ -113,6 +120,14 @@ int timer_init(tim_t tim, unsigned long freq, timer_cb_t cb, void *arg)
     wait_synchronization(tim);
 
     dev(tim)->INTENCLR.reg = TC_INTENCLR_MASK;
+
+#ifdef MODULE_PERIPH_TIMER_OVERFLOW
+    /*  enable overflow */
+    if (config[tim].overflow_cb) {
+        dev(tim)->INTFLAG.reg = TC_INTFLAG_OVF;
+        dev(tim)->INTENSET.reg = TC_INTENSET_OVF;
+    }
+#endif
 
     /* save callback */
     config[tim].cb = cb;
@@ -221,6 +236,18 @@ void timer_start(tim_t tim)
     dev(tim)->CTRLA.bit.ENABLE = 1;
 }
 
+#ifdef MODULE_PERIPH_TIMER_OVERFLOW
+int timer_get_overflow_flag(tim_t tim)
+{
+    return (dev(tim)->INTFLAG.reg & TC_INTFLAG_OVF) && dev(tim)->INTENSET.bit.OVF;
+}
+
+void _timer_clear_overflow_flag_from_isr(tim_t tim)
+{
+    dev(tim)->INTFLAG.reg = TC_INTENCLR_OVF;
+}
+#endif
+
 static inline void timer_isr(tim_t tim)
 {
     TcCount32 *tc  = dev(tim);
@@ -228,6 +255,15 @@ static inline void timer_isr(tim_t tim)
 
     /* Acknowledge all interrupts */
     tc->INTFLAG.reg = status;
+
+#ifdef MODULE_PERIPH_TIMER_OVERFLOW
+    if ((status & TC_INTFLAG_OVF) && tc->INTENSET.bit.OVF) {
+        _timer_clear_overflow_flag_from_isr(tim);
+        if (config[tim].overflow_cb) {
+            config[tim].overflow_cb();
+        }
+    }
+#endif
 
     if ((status & TC_INTFLAG_MC0) && tc->INTENSET.bit.MC0) {
         tc->INTENCLR.reg = TC_INTENCLR_MC0;
