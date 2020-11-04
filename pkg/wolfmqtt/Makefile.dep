@@ -1,0 +1,8 @@
+# USEPKG += wolfssl
+# USEMODULE += wolfssl
+# USEMODULE += wolfssl_socket
+
+USEMODULE += wolfmqtt_contrib
+
+# USEMODULE += lwip
+# USEMODULE += lwip_netdev

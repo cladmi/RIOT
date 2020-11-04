@@ -1,0 +1,5 @@
+INCLUDES += -I$(PKGDIRBASE)/wolfmqtt
+INCLUDES += -I$(PKGDIRBASE)/wolfmqtt/examples
+INCLUDES += -I$(RIOTBASE)/pkg/wolfmqtt/include
+
+DIRS += $(RIOTBASE)/pkg/wolfmqtt/contrib
