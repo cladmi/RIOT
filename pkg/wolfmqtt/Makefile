@@ -5,6 +5,9 @@ PKG_LICENSE = GPLv2
 
 include $(RIOTBASE)/pkg/pkg.mk
 
+CFLAGS += -Wno-unused-parameter
+
 all:
-	"$(MAKE)" -C $(PKG_SOURCE_DIR)/src -f $(CURDIR)/Makefile.wolfmqtt
+	"$(MAKE)" -C $(PKG_SOURCE_DIR)/src -f $(CURDIR)/Makefile.$(PKG_NAME)
+	"$(MAKE)" -C $(PKG_SOURCE_DIR)/examples -f $(CURDIR)/Makefile.$(PKG_NAME).examples
 

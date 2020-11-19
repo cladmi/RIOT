@@ -21,8 +21,6 @@ WIFI_PASS = "7yvCY8B!uYwU"
 USEMODULE += xtimer
 
 USEPKG += wolfmqtt
-USEMODULE += wolfmqtt
-USEMODULE += wolfmqtt_examples
 
 LWIP_IPV4 ?= 0
 

@@ -25,9 +25,9 @@
 #endif
 
 #include "wolfmqtt/mqtt_client.h"
+#include "examples/mqttnet.h"
 
 #include "mqttclient.h"
-#include "mqttnet_riot.h"
 
 /* Locals */
 static int mStopRead = 0;

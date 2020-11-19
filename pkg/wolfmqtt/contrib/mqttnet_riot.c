@@ -29,7 +29,7 @@
 #include "wolfmqtt/mqtt_client.h"
 #include "examples/mqttexample.h"
 
-#include "mqttnet_riot.h"
+#include "examples/mqttnet.h"
 
 /* Setup defaults */
 #ifndef SOCK_OPEN

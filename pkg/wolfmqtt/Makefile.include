@@ -1,5 +1,8 @@
-INCLUDES += -I$(PKGDIRBASE)/wolfmqtt
-INCLUDES += -I$(PKGDIRBASE)/wolfmqtt/examples
-INCLUDES += -I$(RIOTBASE)/pkg/wolfmqtt/include
+# INCLUDES += -I$(PKGDIRBASE)/wolfmqtt/wolfmqtt
+# INCLUDES += -I$(PKGDIRBASE)/wolfmqtt/examples
+# INCLUDES += -I$(RIOTBASE)/pkg/wolfmqtt/include
 
-DIRS += $(RIOTBASE)/pkg/wolfmqtt/contrib
+DIRS += $(RIOTPKG)/wolfmqtt/contrib
+DIRS += $(RIOTPKG)/wolfmqtt/wolfmqtt
+DIRS += $(RIOTPKG)/wolfmqtt/examples
+DIRS += $(RIOTPKG)/wolfmqtt/src
