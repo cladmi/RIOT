@@ -7,7 +7,11 @@ include $(RIOTBASE)/pkg/pkg.mk
 
 CFLAGS += -Wno-unused-parameter
 
-all:
+all: $(filter wolfmqtt wolfmqtt_examples,$(USEMODULE))
+
+wolfmqtt:
 	"$(MAKE)" -C $(PKG_SOURCE_DIR)/src -f $(CURDIR)/Makefile.$(PKG_NAME)
+
+wolfmqtt_examples:
 	"$(MAKE)" -C $(PKG_SOURCE_DIR)/wolfmqtt_examples -f $(CURDIR)/Makefile.$(PKG_NAME).examples
 
