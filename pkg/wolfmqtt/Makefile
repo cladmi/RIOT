@@ -9,5 +9,5 @@ CFLAGS += -Wno-unused-parameter
 
 all:
 	"$(MAKE)" -C $(PKG_SOURCE_DIR)/src -f $(CURDIR)/Makefile.$(PKG_NAME)
-	"$(MAKE)" -C $(PKG_SOURCE_DIR)/examples -f $(CURDIR)/Makefile.$(PKG_NAME).examples
+	"$(MAKE)" -C $(PKG_SOURCE_DIR)/wolfmqtt_examples -f $(CURDIR)/Makefile.$(PKG_NAME).examples
 

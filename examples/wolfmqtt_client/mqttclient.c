@@ -25,7 +25,7 @@
 #endif
 
 #include "wolfmqtt/mqtt_client.h"
-#include "examples/mqttnet.h"
+#include "wolfmqtt_examples/mqttnet.h"
 
 #include "mqttclient.h"
 

@@ -2,6 +2,7 @@
 # INCLUDES += -I$(PKGDIRBASE)/wolfmqtt/examples
 
 # Have wolfmqtt headers available as 'wolfmqtt/mqtt_client.h' for example
+# and examples files as 'wolfmqtt_examples/header.h'
 INCLUDES += -I$(PKGDIRBASE)/wolfmqtt
 # Have RIOT package headers available
 INCLUDES += -I$(RIOTBASE)/pkg/wolfmqtt/include
