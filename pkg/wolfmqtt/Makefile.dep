@@ -3,6 +3,7 @@
 # USEMODULE += wolfssl_socket
 
 USEMODULE += wolfmqtt
+USEMODULE += wolfmqtt_examples
 USEMODULE += wolfmqtt_contrib
 
 # USEMODULE += lwip
