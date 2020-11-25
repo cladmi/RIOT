@@ -27,9 +27,9 @@
 #include <sys/time.h>
 
 #include "wolfmqtt/mqtt_client.h"
-#include "examples/mqttexample.h"
+#include "wolfmqtt_examples/mqttexample.h"
 
-#include "examples/mqttnet.h"
+#include "wolfmqtt_examples/mqttnet.h"
 
 /* Setup defaults */
 #ifndef SOCK_OPEN
