@@ -22,6 +22,9 @@ USEMODULE += xtimer
 
 USEPKG += wolfmqtt
 
+# This firmware is implemented inside the package examples
+USEMODULE += wolfmqtt_examples_mqttclient
+
 LWIP_IPV4 ?= 0
 
 ifneq (0,$(LWIP_IPV4))
