@@ -1,6 +1,3 @@
-# INCLUDES += -I$(PKGDIRBASE)/wolfmqtt/wolfmqtt
-# INCLUDES += -I$(PKGDIRBASE)/wolfmqtt/examples
-
 # Have wolfmqtt headers available as 'wolfmqtt/mqtt_client.h' for example
 # and examples files as 'wolfmqtt_examples/header.h'
 INCLUDES += -I$(PKGDIRBASE)/wolfmqtt
@@ -8,6 +5,3 @@ INCLUDES += -I$(PKGDIRBASE)/wolfmqtt
 INCLUDES += -I$(RIOTBASE)/pkg/wolfmqtt/include
 
 DIRS += $(RIOTPKG)/wolfmqtt/contrib
-DIRS += $(RIOTPKG)/wolfmqtt/wolfmqtt
-DIRS += $(RIOTPKG)/wolfmqtt/examples
-DIRS += $(RIOTPKG)/wolfmqtt/src
