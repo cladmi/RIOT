@@ -40,8 +40,8 @@ ifneq (0,$(LWIP_IPV6))
   USEMODULE += lwip_ipv6_autoconfig
 endif
 
-# USEMODULE += lwip_netdev
-# USEMODULE += lwip
+USEMODULE += lwip_netdev
+USEMODULE += lwip
 
 USEMODULE += sock_async_event
 USEMODULE += sock_ip
