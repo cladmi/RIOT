@@ -1,3 +1,5 @@
 MODULE = wolfmqtt_examples
 
+SRC = $(filter-out mqttnet.c, $(wildcard *.c))
+
 include $(RIOTBASE)/Makefile.base
